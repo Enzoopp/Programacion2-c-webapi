@@ -1,0 +1,26 @@
+
+# Dependencies
+[Dd]ependencies/
+[Pp]ackages/
+[Nn]ode_modules/
+
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio generated files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.vspscc
+
+# Rider/JetBrains generated files
+.idea/
+
+# Other
+MiPrimeraApi.zip
+
+# User-specific files
+*.DotSettings.user
