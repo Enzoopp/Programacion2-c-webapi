@@ -1,4 +1,5 @@
 using Biblioteca.Models;
+using System.Collections.Generic;
 
 namespace Biblioteca.interfaces
 {
@@ -6,7 +7,7 @@ namespace Biblioteca.interfaces
     {
         List<Persona> GetAll();
         Persona GetById(int id);
-        Persona Update(int id, Persona persona);
+        void Update(int id, Persona persona);
         void Delete(int id);
         Persona Create(Persona persona);
     
