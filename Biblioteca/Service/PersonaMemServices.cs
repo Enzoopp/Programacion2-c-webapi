@@ -44,7 +44,7 @@ namespace Biblioteca.Services
             return null;
         }
 
-        public Persona Update(int id, Persona persona)
+        public void Update(int id, Persona persona)
         {
             var personaLista = _listaPersonas.FirstOrDefault(p => p.Id == id);
             if (personaLista != null)
@@ -54,7 +54,6 @@ namespace Biblioteca.Services
                 personaLista.FechaNacimiento = persona.FechaNacimiento;
                 personaLista.Dni = persona.Dni;
             }
-            return persona;
         }
     }
 }
