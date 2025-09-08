@@ -1,0 +1,38 @@
+
+[
+    {
+        "Id": 1,
+        "Nombre": "Enzo",
+        "Apellido": "Pitana",
+        "FechaNacimiento": "1998-05-20T00:00:00",
+        "Dni": "46976644"
+    },
+    {
+        "Id": 2,
+        "Nombre": "Lucía",
+        "Apellido": "Fernández",
+        "FechaNacimiento": "2000-03-15T00:00:00",
+        "Dni": "40234567"
+    },
+    {
+        "Id": 3,
+        "Nombre": "Martín",
+        "Apellido": "Gómez",
+        "FechaNacimiento": "1995-07-10T00:00:00",
+        "Dni": "38911223"
+    },
+    {
+        "Id": 4,
+        "Nombre": "Carla",
+        "Apellido": "López",
+        "FechaNacimiento": "1992-11-02T00:00:00",
+        "Dni": "37655433"
+    },
+    {
+        "Id": 5,
+        "Nombre": "Santiago",
+        "Apellido": "Rodríguez",
+        "FechaNacimiento": "1989-01-30T00:00:00",
+        "Dni": "35466778"
+    }
+]
