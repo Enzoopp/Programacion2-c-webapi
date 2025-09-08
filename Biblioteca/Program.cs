@@ -12,6 +12,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
 builder.Services.AddSingleton<IPersonaService, PersonaFileServices>();
+builder.Services.AddSingleton<IAutorService, AutorFileService>();
+builder.Services.AddSingleton<ILibroService, LibroFileService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
