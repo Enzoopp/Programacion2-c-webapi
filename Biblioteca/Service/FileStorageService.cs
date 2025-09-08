@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace Biblioteca.Services
@@ -8,6 +9,7 @@ namespace Biblioteca.Services
         {
             if (!File.Exists(filePath))
             {
+                Console.WriteLine($"El archivo no existe. Creando uno nuevo en: {filePath}");
                 File.WriteAllText(filePath, "[]");
             }
 
@@ -16,7 +18,16 @@ namespace Biblioteca.Services
 
         public void Write(string filePath, string fileContent)
         {
-            File.WriteAllText(filePath, fileContent);
+            try
+            {
+                File.WriteAllText(filePath, fileContent);
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine($"Error al escribir en el archivo: {filePath}. Error: {ex.Message}");
+                throw;
+            }
         }
     }
 }
