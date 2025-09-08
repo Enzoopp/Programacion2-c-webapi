@@ -48,7 +48,7 @@ namespace Biblioteca.Services
             return persona;
         }
 
-        public Persona Update(int id, Persona persona)
+        public void Update(int id, Persona persona)
         {
             var existingPersona = GetById(id);
             if (existingPersona != null)
@@ -58,19 +58,13 @@ namespace Biblioteca.Services
                 existingPersona.FechaNacimiento = persona.FechaNacimiento;
                 existingPersona.Dni = persona.Dni;
                 SavePersonasToFile();
-                return existingPersona;
             }
-            return null;
         }
 
         public void Delete(int id)
         {
-            var persona = GetById(id);
-            if (persona != null)
-            {
-                _personas.Remove(persona);
-                SavePersonasToFile();
-            }
+            _personas.RemoveAll(p => p.Id == id);
+            SavePersonasToFile();
         }
     }
 }
