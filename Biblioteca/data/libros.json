@@ -1,0 +1,35 @@
+[
+    {
+        "Id": 1,
+        "IdAutor": 1,
+        "Titulo": "Cien Años de Soledad",
+        "Descripcion": "La novela narra la historia de la familia Buendía a lo largo de siete generaciones en el pueblo ficticio de Macondo.",
+        "Genero": "Realismo Mágico",
+        "ISBN": "978-0307474728",
+        "Fecha_Publicacion": 1967,
+        "Fecha_Edicion": 2003,
+        "Edicion": "Edición Conmemorativa"
+    },
+    {
+        "Id": 2,
+        "IdAutor": 2,
+        "Titulo": "Rayuela",
+        "Descripcion": "La novela es conocida por su estructura, que permite al lector elegir entre leer la novela de forma lineal o seguir un orden de capítulos no secuencial.",
+        "Genero": "Novela",
+        "ISBN": "978-8437604034",
+        "Fecha_Publicacion": 1963,
+        "Fecha_Edicion": 2019,
+        "Edicion": "Edición Cátedra"
+    },
+    {
+        "Id": 3,
+        "IdAutor": 3,
+        "Titulo": "La Ciudad y los Perros",
+        "Descripcion": "La novela narra las vivencias de un grupo de jóvenes internos en un colegio militar en Lima, Perú.",
+        "Genero": "Novela",
+        "ISBN": "978-8466333868",
+        "Fecha_Publicacion": 1963,
+        "Fecha_Edicion": 2016,
+        "Edicion": "Edición Alfaguara"
+    }
+]
