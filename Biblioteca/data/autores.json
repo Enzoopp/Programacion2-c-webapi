@@ -1,0 +1,20 @@
+[
+    {
+        "Id": 1,
+        "Nombre": "Gabriel Garcia Marquez",
+        "Nacionalidad": "Colombiano",
+        "Descripcion": "Escritor de Cien Años de Soledad"
+    },
+    {
+        "Id": 2,
+        "Nombre": "Julio Cortazar",
+        "Nacionalidad": "Argentino",
+        "Descripcion": "Escritor de Rayuela"
+    },
+    {
+        "Id": 3,
+        "Nombre": "Mario Vargas Llosa",
+        "Nacionalidad": "Peruano",
+        "Descripcion": "Escritor de La Ciudad y los Perros"
+    }
+]
