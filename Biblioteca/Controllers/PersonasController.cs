@@ -44,6 +44,10 @@ namespace Biblioteca.Controllers
         [HttpPost]
         public ActionResult<Persona> Create([FromBody] Persona persona)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var newPersona = _personaService.Create(persona); 
 
             return CreatedAtAction(nameof(GetById), new { id = newPersona.Id }, newPersona);
@@ -51,17 +55,21 @@ namespace Biblioteca.Controllers
 
        // PUT: api/personas/{id}
         [HttpPut("{id}")]
-        public ActionResult<Persona> Update(int id, [FromBody] Persona persona)
+        public IActionResult Update(int id, [FromBody] Persona persona)
         {
-           var p = _personaService.Update(id, persona);
-            if (p != null)
+            if (!ModelState.IsValid)
             {
-                return Ok(p);
+                return BadRequest(ModelState);
             }
-            else
+
+            var personaExistente = _personaService.GetById(id);
+            if (personaExistente == null)
             {
                 return NotFound($"No se encontro la persona con id: {id}");
             }
+
+            _personaService.Update(id, persona);
+            return NoContent();
         }
 
 
