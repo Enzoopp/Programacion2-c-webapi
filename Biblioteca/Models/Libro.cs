@@ -11,5 +11,7 @@ namespace Biblioteca.Models
         public int Fecha_Publicacion { get; set; }
         public int Fecha_Edicion { get; set; }
         public string Edicion { get; set; }
+
+        public Autor Autor { get; set; }
     }
 }
