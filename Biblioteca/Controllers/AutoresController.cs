@@ -8,10 +8,10 @@ namespace Biblioteca.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AutorController : ControllerBase
+    public class AutoresController : ControllerBase
     {
         private readonly IAutorService _autorService;
-        public AutorController(IAutorService autorService)
+        public AutoresController(IAutorService autorService)
         {
             _autorService = autorService;
         }
