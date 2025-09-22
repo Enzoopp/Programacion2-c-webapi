@@ -8,10 +8,10 @@ namespace Biblioteca.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class LibroController : ControllerBase
+    public class LibrosController : ControllerBase
     {
         private readonly ILibroService _libroService;
-        public LibroController(ILibroService libroService)
+        public LibrosController(ILibroService libroService)
         {
             _libroService = libroService;
         }
