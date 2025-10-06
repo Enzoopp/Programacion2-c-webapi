@@ -66,5 +66,10 @@ namespace Biblioteca.Services
             _personas.RemoveAll(p => p.Id == id);
             SavePersonasToFile();
         }
+
+        public Persona GetByNombreUsuario(string nombreUsuario)
+        {
+            return _personas.FirstOrDefault(p => p.NombreUsuario == nombreUsuario);
+        }
     }
 }
