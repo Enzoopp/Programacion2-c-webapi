@@ -53,7 +53,15 @@ namespace Biblioteca.Services
                 personaLista.Apellido = persona.Apellido;
                 personaLista.FechaNacimiento = persona.FechaNacimiento;
                 personaLista.Dni = persona.Dni;
+                personaLista.NombreUsuario = persona.NombreUsuario;
+                personaLista.PassHash = persona.PassHash;
+                personaLista.Rol = persona.Rol;
             }
+        }
+
+        public Persona GetByNombreUsuario(string nombreUsuario)
+        {
+            return _listaPersonas.FirstOrDefault(p => p.NombreUsuario == nombreUsuario);
         }
     }
 }
