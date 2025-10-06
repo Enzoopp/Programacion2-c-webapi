@@ -10,6 +10,6 @@ namespace Biblioteca.interfaces
         void Update(int id, Persona persona);
         void Delete(int id);
         Persona Create(Persona persona);
-    
+        Persona GetByNombreUsuario(string nombreUsuario);
     }
 } 
