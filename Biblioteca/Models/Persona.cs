@@ -18,6 +18,16 @@ namespace Biblioteca.Models
         [StringLength(8, MinimumLength = 7, ErrorMessage = "El DNI debe tener entre 7 y 8 caracteres")]
         [RegularExpression("^[0-9]*$", ErrorMessage = "El DNI solo puede contener números")]
         public string Dni { get; set; }
+
+        // Propiedades para autenticación
+        [Required(ErrorMessage = "El nombre de usuario es requerido")]
+        public string NombreUsuario { get; set; }
+
+        [Required(ErrorMessage = "La contraseña es requerida")]
+        public string PassHash { get; set; }
+
+        [Required(ErrorMessage = "El rol es requerido")]
+        public string Rol { get; set; } = "Usuario"; // Valor por defecto
     }
 }
 
