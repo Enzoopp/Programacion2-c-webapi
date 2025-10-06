@@ -60,8 +60,8 @@ namespace Biblioteca.Services
                 existingLibro.Descripcion = libro.Descripcion;
                 existingLibro.Genero = libro.Genero;
                 existingLibro.ISBN = libro.ISBN;
-                existingLibro.Fecha_Publicacion = libro.Fecha_Publicacion;
-                existingLibro.Fecha_Edicion = libro.Fecha_Edicion;
+                existingLibro.FechaPublicacion = libro.FechaPublicacion;
+                existingLibro.FechaEdicion = libro.FechaEdicion;
                 existingLibro.Edicion = libro.Edicion;
                 SaveLibrosToFile();
             }
