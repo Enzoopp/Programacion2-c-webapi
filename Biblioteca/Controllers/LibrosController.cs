@@ -46,12 +46,12 @@ namespace Biblioteca.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var newLibro = _libroService.Create(libro); 
+            var newLibro = _libroService.Create(libro);
 
             return CreatedAtAction(nameof(GetById), new { id = newLibro.Id }, newLibro);
         }
 
-       // PUT: api/libros/{id}
+        // PUT: api/libros/{id}
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Libro libro)
         {
