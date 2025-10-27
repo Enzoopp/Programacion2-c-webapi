@@ -1,0 +1,49 @@
+@BankLink_HostAddress = http://localhost:5002
+
+### Test de Clientes
+
+# Obtener todos los clientes
+GET {{BankLink_HostAddress}}/api/clientes
+Accept: application/json
+
+###
+
+# Crear nuevo cliente
+POST {{BankLink_HostAddress}}/api/clientes
+Content-Type: application/json
+
+{
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "identificacion": "12345678",
+  "direccion": "Calle 123, Ciudad",
+  "telefono": "+54 11 1234-5678",
+  "email": "juan.perez@email.com"
+}
+
+###
+
+# Obtener cliente por ID
+GET {{BankLink_HostAddress}}/api/clientes/1
+Accept: application/json
+
+###
+
+# Actualizar cliente
+PUT {{BankLink_HostAddress}}/api/clientes/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "nombre": "Juan Carlos",
+  "apellido": "Pérez",
+  "identificacion": "12345678",
+  "direccion": "Calle 456, Ciudad",
+  "telefono": "+54 11 1234-5678",
+  "email": "juan.perez@email.com"
+}
+
+###
+
+# Eliminar cliente
+DELETE {{BankLink_HostAddress}}/api/clientes/1
