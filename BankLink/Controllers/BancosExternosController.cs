@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BankLink.Models;
-using BankLink.Context;
-using Microsoft.EntityFrameworkCore;
+using BankLink.interfaces;
 
 namespace BankLink.Controllers
 {
@@ -9,189 +8,95 @@ namespace BankLink.Controllers
     [Route("api/[controller]")]
     public class BancosExternosController : ControllerBase
     {
-        private readonly BankLinkDbContext _context;
+        private readonly IBancoExternoService _bancoExternoService;
 
-        public BancosExternosController(BankLinkDbContext context)
+        public BancosExternosController(IBancoExternoService bancoExternoService)
         {
-            _context = context;
+            _bancoExternoService = bancoExternoService;
         }
 
         // GET: api/bancosexternos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BancoExterno>>> GetBancosExternos()
+        public ActionResult<List<BancoExterno>> GetAll()
         {
-            return await _context.BancosExternos
-                .Include(b => b.TransferenciasRecibidas)
-                .ToListAsync();
+            return Ok(_bancoExternoService.GetAll());
         }
 
-        // GET: api/bancosexternos/5
+        // GET: api/bancosexternos/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<BancoExterno>> GetBancoExterno(int id)
+        public ActionResult<BancoExterno> GetById(int id)
         {
-            var bancoExterno = await _context.BancosExternos
-                .Include(b => b.TransferenciasRecibidas)
-                .FirstOrDefaultAsync(b => b.Id == id);
-
-            if (bancoExterno == null)
+            var banco = _bancoExternoService.GetById(id);
+            if (banco != null)
             {
-                return NotFound();
+                return Ok(banco);
             }
-
-            return bancoExterno;
-        }
-
-        // GET: api/bancosexternos/activos
-        [HttpGet("activos")]
-        public async Task<ActionResult<IEnumerable<BancoExterno>>> GetBancosExternosActivos()
-        {
-            return await _context.BancosExternos
-                .Where(b => b.Activo)
-                .ToListAsync();
+            else
+            {
+                return NotFound($"No se encontró el banco externo con id: {id}");
+            }
         }
 
         // GET: api/bancosexternos/codigo/{codigo}
         [HttpGet("codigo/{codigo}")]
-        public async Task<ActionResult<BancoExterno>> GetBancoExternoByCodigo(string codigo)
+        public ActionResult<BancoExterno> GetByCodigoIdentificacion(string codigo)
         {
-            var bancoExterno = await _context.BancosExternos
-                .Include(b => b.TransferenciasRecibidas)
-                .FirstOrDefaultAsync(b => b.CodigoIdentificacion == codigo);
-
-            if (bancoExterno == null)
+            var banco = _bancoExternoService.GetByCodigoIdentificacion(codigo);
+            if (banco != null)
             {
-                return NotFound();
+                return Ok(banco);
             }
-
-            return bancoExterno;
+            else
+            {
+                return NotFound($"No se encontró el banco externo con código: {codigo}");
+            }
         }
 
         // POST: api/bancosexternos
         [HttpPost]
-        public async Task<ActionResult<BancoExterno>> PostBancoExterno(BancoExterno bancoExterno)
+        public ActionResult<BancoExterno> Create([FromBody] BancoExterno banco)
         {
-            bancoExterno.FechaCreacion = DateTime.UtcNow;
-            bancoExterno.Activo = true;
-            
-            _context.BancosExternos.Add(bancoExterno);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-            return CreatedAtAction("GetBancoExterno", new { id = bancoExterno.Id }, bancoExterno);
+            var newBanco = _bancoExternoService.Create(banco);
+
+            return CreatedAtAction(nameof(GetById), new { id = newBanco.Id }, newBanco);
         }
 
-        // PUT: api/bancosexternos/5
+        // PUT: api/bancosexternos/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBancoExterno(int id, BancoExterno bancoExterno)
+        public IActionResult Update(int id, [FromBody] BancoExterno banco)
         {
-            if (id != bancoExterno.Id)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(bancoExterno).State = EntityState.Modified;
-
-            try
+            var bancoExistente = _bancoExternoService.GetById(id);
+            if (bancoExistente == null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BancoExternoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound($"No se encontró el banco externo con id: {id}");
             }
 
+            _bancoExternoService.Update(id, banco);
             return NoContent();
         }
 
-        // PUT: api/bancosexternos/5/activar
-        [HttpPut("{id}/activar")]
-        public async Task<IActionResult> ActivarBancoExterno(int id)
-        {
-            var bancoExterno = await _context.BancosExternos.FindAsync(id);
-            if (bancoExterno == null)
-            {
-                return NotFound();
-            }
-
-            bancoExterno.Activo = true;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // PUT: api/bancosexternos/5/desactivar
-        [HttpPut("{id}/desactivar")]
-        public async Task<IActionResult> DesactivarBancoExterno(int id)
-        {
-            var bancoExterno = await _context.BancosExternos.FindAsync(id);
-            if (bancoExterno == null)
-            {
-                return NotFound();
-            }
-
-            bancoExterno.Activo = false;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // DELETE: api/bancosexternos/5
+        // DELETE: api/bancosexternos/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBancoExterno(int id)
+        public ActionResult Delete(int id)
         {
-            var bancoExterno = await _context.BancosExternos
-                .Include(b => b.TransferenciasRecibidas)
-                .FirstOrDefaultAsync(b => b.Id == id);
-            
-            if (bancoExterno == null)
+            var banco = _bancoExternoService.GetById(id);
+            if (banco == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró el banco externo con id: {id}");
             }
 
-            // Verificar que no tenga transferencias pendientes
-            if (bancoExterno.TransferenciasRecibidas.Any(t => t.Estado == EstadoTransferencia.Pendiente))
-            {
-                return BadRequest("No se puede eliminar un banco con transferencias pendientes");
-            }
-
-            _context.BancosExternos.Remove(bancoExterno);
-            await _context.SaveChangesAsync();
-
+            _bancoExternoService.Delete(id);
             return NoContent();
-        }
-
-        // GET: api/bancosexternos/5/conexion
-        [HttpGet("{id}/conexion")]
-        public async Task<ActionResult<object>> ValidarConexion(int id)
-        {
-            var bancoExterno = await _context.BancosExternos.FindAsync(id);
-            if (bancoExterno == null)
-            {
-                return NotFound();
-            }
-
-            // Simulación de validación de conexión
-            var esConexionValida = bancoExterno.Activo && !string.IsNullOrEmpty(bancoExterno.UrlBase);
-
-            return new
-            {
-                BancoId = id,
-                Nombre = bancoExterno.Nombre,
-                ConexionValida = esConexionValida,
-                FechaPrueba = DateTime.UtcNow,
-                Mensaje = esConexionValida ? "Conexión exitosa" : "Error de conexión"
-            };
-        }
-
-        private bool BancoExternoExists(int id)
-        {
-            return _context.BancosExternos.Any(e => e.Id == id);
         }
     }
 }
