@@ -1,0 +1,28 @@
+[
+  {
+    "Id": 1,
+    "Nombre": "Juan",
+    "Apellido": "Pérez",
+    "Dni": "12345678",
+    "Direccion": "Av. Libertador 1234",
+    "Telefono": "1145678901",
+    "Email": "juan.perez@email.com",
+    "NombreUsuario": "juanperez",
+    "PassHash": "$2a$11$XPZxM5C9zRVN8.K0nYqpG.xF4N8k0HzQJ8iL8nZ8K3kxM8K3nZ8K3",
+    "Rol": "Cliente",
+    "Cuentas": []
+  },
+  {
+    "Id": 2,
+    "Nombre": "María",
+    "Apellido": "González",
+    "Dni": "87654321",
+    "Direccion": "Calle Falsa 456",
+    "Telefono": "1187654321",
+    "Email": "maria.gonzalez@email.com",
+    "NombreUsuario": "mariagonzalez",
+    "PassHash": "$2a$11$YQZyN6D0aRVO9.L1oZrqH.yG5O9l1IaRK9jM9oA9L4lyO9L4oA9L4",
+    "Rol": "Cliente",
+    "Cuentas": []
+  }
+]
