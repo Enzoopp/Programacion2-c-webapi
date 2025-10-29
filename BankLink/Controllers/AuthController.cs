@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using BankLink.interfaces;
+using BankLink.Dtos;
 
 namespace BankLink.Controllers
 {
@@ -6,64 +8,71 @@ namespace BankLink.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        // POST: api/auth/login
+        private readonly IAuthService _authService;
+        private readonly IClienteService _clienteService;
+
+        public AuthController(IAuthService authService, IClienteService clienteService)
+        {
+            _authService = authService;
+            _clienteService = clienteService;
+        }
+
         [HttpPost("login")]
-        public async Task<ActionResult<object>> Login([FromBody] object loginRequest)
+        public ActionResult<object> Login([FromBody] LoginDto loginDto)
         {
-            // Funcionalidad básica sin servicios
-            await Task.Delay(1); // Para hacer el método async
-            
-            return Ok(new
+            if (!ModelState.IsValid)
             {
-                Message = "Funcionalidad de autenticación no implementada aún",
-                RequiereServicios = true,
-                FechaConsulta = DateTime.UtcNow
-            });
+                return BadRequest(ModelState);
+            }
+
+            var token = _authService.Login(loginDto);
+            if (token == null)
+            {
+                return Unauthorized(new { message = "Usuario o contraseña incorrectos" });
+            }
+
+            return Ok(new { token = token, message = "Login exitoso" });
         }
 
-        // POST: api/auth/validate-token
-        [HttpPost("validate-token")]
-        public async Task<ActionResult<object>> ValidateToken([FromBody] object tokenRequest)
+        [HttpPost("register")]
+        public ActionResult Register([FromBody] RegisterDto registerDto)
         {
-            await Task.Delay(1); // Para hacer el método async
-            
-            return Ok(new
+            if (!ModelState.IsValid)
             {
-                Message = "Validación de token no implementada aún",
-                RequiereServicios = true,
-                FechaConsulta = DateTime.UtcNow
-            });
-        }
+                return BadRequest(ModelState);
+            }
 
-        // POST: api/auth/validate-apikey
-        [HttpPost("validate-apikey")]
-        public async Task<ActionResult<object>> ValidateApiKey([FromBody] object apikeyRequest)
-        {
-            await Task.Delay(1); // Para hacer el método async
-            
-            return Ok(new
+            // Verificar si el usuario ya existe
+            var usuarioExistente = _clienteService.GetByNombreUsuario(registerDto.NombreUsuario);
+            if (usuarioExistente != null)
             {
-                Message = "Validación de API Key no implementada aún",
-                RequiereServicios = true,
-                FechaConsulta = DateTime.UtcNow
-            });
-        }
+                return BadRequest(new { message = "El nombre de usuario ya está en uso" });
+            }
 
-        // GET: api/auth/status
-        [HttpGet("status")]
-        public ActionResult<object> GetAuthStatus()
-        {
-            return Ok(new
+            // Verificar si el DNI ya existe
+            var dniExistente = _clienteService.GetByDni(registerDto.Dni);
+            if (dniExistente != null)
             {
-                Status = "Auth Controller Activo",
-                ServiciosRequeridos = new[] 
-                { 
-                    "IAuthService",
-                    "JWT Configuration",
-                    "BCrypt Hashing"
-                },
-                FechaConsulta = DateTime.UtcNow
-            });
+                return BadRequest(new { message = "El DNI ya está registrado" });
+            }
+
+            // Crear el cliente
+            var cliente = new BankLink.Models.Cliente
+            {
+                Nombre = registerDto.Nombre,
+                Apellido = registerDto.Apellido,
+                Dni = registerDto.Dni,
+                Direccion = registerDto.Direccion,
+                Telefono = registerDto.Telefono,
+                Email = registerDto.Email,
+                NombreUsuario = registerDto.NombreUsuario,
+                PassHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Contraseña),
+                Rol = registerDto.Rol
+            };
+
+            _clienteService.Create(cliente);
+
+            return Ok(new { message = "Cliente registrado exitosamente" });
         }
     }
 }
