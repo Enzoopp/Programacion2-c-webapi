@@ -35,21 +35,19 @@ namespace BankLink.Migrations
 
                     b.Property<string>("CodigoIdentificacion")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Nombre")
+                    b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UrlBase")
+                    b.Property<string>("NombreBanco")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UrlApiBase")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -57,26 +55,6 @@ namespace BankLink.Migrations
                         .IsUnique();
 
                     b.ToTable("BancosExternos");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Activo = true,
-                            CodigoIdentificacion = "BN001",
-                            FechaCreacion = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Nombre = "Banco Nacional",
-                            UrlBase = "https://api.banconacional.com"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Activo = true,
-                            CodigoIdentificacion = "BI002",
-                            FechaCreacion = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Nombre = "Banco Internacional",
-                            UrlBase = "https://api.bancointernacional.com"
-                        });
                 });
 
             modelBuilder.Entity("BankLink.Models.Cliente", b =>
@@ -89,43 +67,47 @@ namespace BankLink.Migrations
 
                     b.Property<string>("Apellido")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Direccion")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Dni")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Identificacion")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NombreUsuario")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PassHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Rol")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Telefono")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
+                    b.HasIndex("Dni")
                         .IsUnique();
 
-                    b.HasIndex("Identificacion")
+                    b.HasIndex("NombreUsuario")
                         .IsUnique();
 
                     b.ToTable("Clientes");
@@ -139,29 +121,31 @@ namespace BankLink.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClienteId")
-                        .HasColumnType("int");
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("FechaCreacion")
+                    b.Property<DateTime>("FechaApertura")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("IdClientePropietario")
+                        .HasColumnType("int");
 
                     b.Property<string>("NumeroCuenta")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("Saldo")
+                    b.Property<decimal>("SaldoActual")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Tipo")
-                        .HasColumnType("int");
+                    b.Property<string>("TipoCuenta")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClienteId");
+                    b.HasIndex("IdClientePropietario");
 
                     b.HasIndex("NumeroCuenta")
                         .IsUnique();
@@ -177,31 +161,27 @@ namespace BankLink.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CuentaId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaHora")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("IdCuenta")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Monto")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Tipo")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TransferenciaId")
-                        .HasColumnType("int");
+                    b.Property<string>("TipoMovimiento")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CuentaId");
-
-                    b.HasIndex("TransferenciaId");
+                    b.HasIndex("IdCuenta");
 
                     b.ToTable("Movimientos");
                 });
@@ -214,108 +194,82 @@ namespace BankLink.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("BancoExternoId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CuentaDestinoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CuentaOrigenId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaHora")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("IdBancoDestino")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdCuentaOrigen")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Monto")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("NumeroCuentaDestino")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ReferenciaExterna")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Tipo")
-                        .HasColumnType("int");
+                    b.Property<string>("TipoTransferencia")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BancoExternoId");
+                    b.HasIndex("IdBancoDestino");
 
-                    b.HasIndex("CuentaDestinoId");
-
-                    b.HasIndex("CuentaOrigenId");
+                    b.HasIndex("IdCuentaOrigen");
 
                     b.ToTable("Transferencias");
                 });
 
             modelBuilder.Entity("BankLink.Models.Cuenta", b =>
                 {
-                    b.HasOne("BankLink.Models.Cliente", "Cliente")
+                    b.HasOne("BankLink.Models.Cliente", "ClientePropietario")
                         .WithMany("Cuentas")
-                        .HasForeignKey("ClienteId")
+                        .HasForeignKey("IdClientePropietario")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Cliente");
+                    b.Navigation("ClientePropietario");
                 });
 
             modelBuilder.Entity("BankLink.Models.Movimiento", b =>
                 {
                     b.HasOne("BankLink.Models.Cuenta", "Cuenta")
                         .WithMany("Movimientos")
-                        .HasForeignKey("CuentaId")
+                        .HasForeignKey("IdCuenta")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BankLink.Models.Transferencia", "Transferencia")
-                        .WithMany("Movimientos")
-                        .HasForeignKey("TransferenciaId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Cuenta");
-
-                    b.Navigation("Transferencia");
                 });
 
             modelBuilder.Entity("BankLink.Models.Transferencia", b =>
                 {
-                    b.HasOne("BankLink.Models.BancoExterno", "BancoExterno")
-                        .WithMany("TransferenciasRecibidas")
-                        .HasForeignKey("BancoExternoId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("BankLink.Models.Cuenta", "CuentaDestino")
+                    b.HasOne("BankLink.Models.BancoExterno", "BancoDestino")
                         .WithMany()
-                        .HasForeignKey("CuentaDestinoId")
+                        .HasForeignKey("IdBancoDestino")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("BankLink.Models.Cuenta", "CuentaOrigen")
                         .WithMany()
-                        .HasForeignKey("CuentaOrigenId")
+                        .HasForeignKey("IdCuentaOrigen")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("BancoExterno");
-
-                    b.Navigation("CuentaDestino");
+                    b.Navigation("BancoDestino");
 
                     b.Navigation("CuentaOrigen");
-                });
-
-            modelBuilder.Entity("BankLink.Models.BancoExterno", b =>
-                {
-                    b.Navigation("TransferenciasRecibidas");
                 });
 
             modelBuilder.Entity("BankLink.Models.Cliente", b =>
@@ -324,11 +278,6 @@ namespace BankLink.Migrations
                 });
 
             modelBuilder.Entity("BankLink.Models.Cuenta", b =>
-                {
-                    b.Navigation("Movimientos");
-                });
-
-            modelBuilder.Entity("BankLink.Models.Transferencia", b =>
                 {
                     b.Navigation("Movimientos");
                 });
