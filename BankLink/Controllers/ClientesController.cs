@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BankLink.Models;
-using BankLink.Context;
-using Microsoft.EntityFrameworkCore;
+using BankLink.interfaces;
 
 namespace BankLink.Controllers
 {
@@ -9,98 +8,101 @@ namespace BankLink.Controllers
     [Route("api/[controller]")]
     public class ClientesController : ControllerBase
     {
-        private readonly BankLinkDbContext _context;
+        private readonly IClienteService _clienteService;
 
-        public ClientesController(BankLinkDbContext context)
+        public ClientesController(IClienteService clienteService)
         {
-            _context = context;
+            _clienteService = clienteService;
         }
 
         // GET: api/clientes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cliente>>> GetClientes()
+        public ActionResult<List<Cliente>> GetAll()
         {
-            return await _context.Clientes
-                .Include(c => c.Cuentas)
-                .ToListAsync();
+            return Ok(_clienteService.GetAll());
         }
 
-        // GET: api/clientes/5
+        // GET: api/clientes/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cliente>> GetCliente(int id)
+        public ActionResult<Cliente> GetById(int id)
         {
-            var cliente = await _context.Clientes
-                .Include(c => c.Cuentas)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (cliente == null)
+            var cliente = _clienteService.GetById(id);
+            if (cliente != null)
             {
-                return NotFound();
+                return Ok(cliente);
             }
+            else
+            {
+                return NotFound($"No se encontró el cliente con id: {id}");
+            }
+        }
 
-            return cliente;
+        // GET: api/clientes/dni/{dni}
+        [HttpGet("dni/{dni}")]
+        public ActionResult<Cliente> GetByDni(string dni)
+        {
+            var cliente = _clienteService.GetByDni(dni);
+            if (cliente != null)
+            {
+                return Ok(cliente);
+            }
+            else
+            {
+                return NotFound($"No se encontró el cliente con DNI: {dni}");
+            }
         }
 
         // POST: api/clientes
         [HttpPost]
-        public async Task<ActionResult<Cliente>> PostCliente(Cliente cliente)
+        public ActionResult<Cliente> Create([FromBody] Cliente cliente)
         {
-            cliente.FechaCreacion = DateTime.UtcNow;
-            _context.Clientes.Add(cliente);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-            return CreatedAtAction("GetCliente", new { id = cliente.Id }, cliente);
+            // Hash de contraseña si viene sin hashear
+            if (!string.IsNullOrEmpty(cliente.PassHash) && !cliente.PassHash.StartsWith("$2"))
+            {
+                cliente.PassHash = BCrypt.Net.BCrypt.HashPassword(cliente.PassHash);
+            }
+
+            var newCliente = _clienteService.Create(cliente);
+
+            return CreatedAtAction(nameof(GetById), new { id = newCliente.Id }, newCliente);
         }
 
-        // PUT: api/clientes/5
+        // PUT: api/clientes/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCliente(int id, Cliente cliente)
+        public IActionResult Update(int id, [FromBody] Cliente cliente)
         {
-            if (id != cliente.Id)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(cliente).State = EntityState.Modified;
-
-            try
+            var clienteExistente = _clienteService.GetById(id);
+            if (clienteExistente == null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ClienteExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound($"No se encontró el cliente con id: {id}");
             }
 
+            _clienteService.Update(id, cliente);
             return NoContent();
         }
 
-        // DELETE: api/clientes/5
+        // DELETE: api/clientes/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCliente(int id)
+        public ActionResult Delete(int id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
+            var cliente = _clienteService.GetById(id);
             if (cliente == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró el cliente con id: {id}");
             }
 
-            _context.Clientes.Remove(cliente);
-            await _context.SaveChangesAsync();
-
+            _clienteService.Delete(id);
             return NoContent();
-        }
-
-        private bool ClienteExists(int id)
-        {
-            return _context.Clientes.Any(e => e.Id == id);
         }
     }
 }
