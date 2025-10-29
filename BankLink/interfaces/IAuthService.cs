@@ -6,6 +6,5 @@ namespace BankLink.interfaces
     {
         string CreateToken(CreateTokenDto createTokenDto);
         string Login(LoginDto loginDto);
-        Task<bool> ValidateApiKeyAsync(string apiKey);
     }
 }
