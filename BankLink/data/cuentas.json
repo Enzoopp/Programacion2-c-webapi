@@ -6,16 +6,20 @@
     "SaldoActual": 50000.00,
     "Estado": "Activa",
     "FechaApertura": "2025-01-15T10:00:00",
-    "IdClientePropietario": 1
+    "IdClientePropietario": 1,
+    "ClientePropietario": null,
+    "Movimientos": []
   },
   {
     "Id": 2,
     "NumeroCuenta": "10005678",
     "TipoCuenta": "Corriente",
-    "SaldoActual": 120000.00,
+    "SaldoActual": 130000.00,
     "Estado": "Activa",
     "FechaApertura": "2025-02-20T14:30:00",
-    "IdClientePropietario": 1
+    "IdClientePropietario": 1,
+    "ClientePropietario": null,
+    "Movimientos": []
   },
   {
     "Id": 3,
@@ -24,6 +28,30 @@
     "SaldoActual": 75000.00,
     "Estado": "Activa",
     "FechaApertura": "2025-03-10T09:15:00",
-    "IdClientePropietario": 2
+    "IdClientePropietario": 2,
+    "ClientePropietario": null,
+    "Movimientos": []
+  },
+  {
+    "Id": 4,
+    "NumeroCuenta": "53487383",
+    "TipoCuenta": "Ahorro",
+    "SaldoActual": 50000.00,
+    "Estado": "Activa",
+    "FechaApertura": "2025-10-29T14:58:00.446907-03:00",
+    "IdClientePropietario": 1,
+    "ClientePropietario": null,
+    "Movimientos": []
+  },
+  {
+    "Id": 5,
+    "NumeroCuenta": "93453161",
+    "TipoCuenta": "Corriente",
+    "SaldoActual": 30000.00,
+    "Estado": "Activa",
+    "FechaApertura": "2025-10-29T15:01:25.5884125-03:00",
+    "IdClientePropietario": 1,
+    "ClientePropietario": null,
+    "Movimientos": []
   }
 ]
