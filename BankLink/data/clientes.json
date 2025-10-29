@@ -2,7 +2,7 @@
   {
     "Id": 1,
     "Nombre": "Juan",
-    "Apellido": "Pérez",
+    "Apellido": "P\u00E9rez",
     "Dni": "12345678",
     "Direccion": "Av. Libertador 1234",
     "Telefono": "1145678901",
@@ -14,14 +14,27 @@
   },
   {
     "Id": 2,
-    "Nombre": "María",
-    "Apellido": "González",
+    "Nombre": "Mar\u00EDa",
+    "Apellido": "Gonz\u00E1lez",
     "Dni": "87654321",
     "Direccion": "Calle Falsa 456",
     "Telefono": "1187654321",
     "Email": "maria.gonzalez@email.com",
     "NombreUsuario": "mariagonzalez",
     "PassHash": "$2a$11$YQZyN6D0aRVO9.L1oZrqH.yG5O9l1IaRK9jM9oA9L4lyO9L4oA9L4",
+    "Rol": "Cliente",
+    "Cuentas": []
+  },
+  {
+    "Id": 3,
+    "Nombre": "Pedro",
+    "Apellido": "Garc\u00EDa",
+    "Dni": "11223344",
+    "Direccion": "Av. Siempre Viva 742",
+    "Telefono": "1155667788",
+    "Email": "pedro@email.com",
+    "NombreUsuario": "pedrogarcia",
+    "PassHash": "$2a$11$MbZzKGAD7TADuD8J/8NwEe5/fseRiTbGL/JIqi1Is08Mdp2kVSZZW",
     "Rol": "Cliente",
     "Cuentas": []
   }
