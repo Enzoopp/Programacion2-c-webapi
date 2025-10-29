@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BankLink.Models;
-using BankLink.Context;
-using Microsoft.EntityFrameworkCore;
+using BankLink.Dtos;
+using BankLink.interfaces;
 
 namespace BankLink.Controllers
 {
@@ -9,260 +9,265 @@ namespace BankLink.Controllers
     [Route("api/[controller]")]
     public class CuentasController : ControllerBase
     {
-        private readonly BankLinkDbContext _context;
+        private readonly ICuentaService _cuentaService;
+        private readonly IClienteService _clienteService;
+        private readonly IMovimientoService _movimientoService;
 
-        public CuentasController(BankLinkDbContext context)
+        public CuentasController(
+            ICuentaService cuentaService,
+            IClienteService clienteService,
+            IMovimientoService movimientoService)
         {
-            _context = context;
+            _cuentaService = cuentaService;
+            _clienteService = clienteService;
+            _movimientoService = movimientoService;
         }
 
         // GET: api/cuentas
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cuenta>>> GetCuentas()
+        public ActionResult<List<Cuenta>> GetAll()
         {
-            return await _context.Cuentas
-                .Include(c => c.Cliente)
-                .Include(c => c.Movimientos)
-                .ToListAsync();
+            return Ok(_cuentaService.GetAll());
         }
 
-        // GET: api/cuentas/5
+        // GET: api/cuentas/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cuenta>> GetCuenta(int id)
+        public ActionResult<Cuenta> GetById(int id)
         {
-            var cuenta = await _context.Cuentas
-                .Include(c => c.Cliente)
-                .Include(c => c.Movimientos)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (cuenta == null)
+            var cuenta = _cuentaService.GetById(id);
+            if (cuenta != null)
             {
-                return NotFound();
+                return Ok(cuenta);
             }
-
-            return cuenta;
+            else
+            {
+                return NotFound($"No se encontró la cuenta con id: {id}");
+            }
         }
 
-        // GET: api/cuentas/cliente/5
+        // GET: api/cuentas/numero/{numeroCuenta}
+        [HttpGet("numero/{numeroCuenta}")]
+        public ActionResult<Cuenta> GetByNumeroCuenta(string numeroCuenta)
+        {
+            var cuenta = _cuentaService.GetByNumeroCuenta(numeroCuenta);
+            if (cuenta != null)
+            {
+                return Ok(cuenta);
+            }
+            else
+            {
+                return NotFound($"No se encontró la cuenta con número: {numeroCuenta}");
+            }
+        }
+
+        // GET: api/cuentas/cliente/{clienteId}
         [HttpGet("cliente/{clienteId}")]
-        public async Task<ActionResult<IEnumerable<Cuenta>>> GetCuentasByCliente(int clienteId)
+        public ActionResult<List<Cuenta>> GetByClienteId(int clienteId)
         {
-            return await _context.Cuentas
-                .Include(c => c.Cliente)
-                .Include(c => c.Movimientos)
-                .Where(c => c.ClienteId == clienteId)
-                .ToListAsync();
-        }
-
-        // GET: api/cuentas/5/saldo
-        [HttpGet("{id}/saldo")]
-        public async Task<ActionResult<object>> GetSaldo(int id)
-        {
-            var cuenta = await _context.Cuentas.FindAsync(id);
-            if (cuenta == null)
-            {
-                return NotFound();
-            }
-
-            return new { CuentaId = id, Saldo = cuenta.Saldo, Fecha = DateTime.UtcNow };
+            var cuentas = _cuentaService.GetByClienteId(clienteId);
+            return Ok(cuentas);
         }
 
         // POST: api/cuentas
         [HttpPost]
-        public async Task<ActionResult<Cuenta>> PostCuenta(Cuenta cuenta)
+        public ActionResult<Cuenta> Create([FromBody] CrearCuentaDto dto)
         {
-            cuenta.FechaCreacion = DateTime.UtcNow;
-            cuenta.Estado = EstadoCuenta.Activa;
-            
-            _context.Cuentas.Add(cuenta);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-            return CreatedAtAction("GetCuenta", new { id = cuenta.Id }, cuenta);
+            // Validar que el cliente existe
+            var cliente = _clienteService.GetById(dto.IdClientePropietario);
+            if (cliente == null)
+            {
+                return BadRequest($"No se encontró el cliente con id: {dto.IdClientePropietario}");
+            }
+
+            // Generar número de cuenta único
+            var numeroCuenta = GenerarNumeroCuenta();
+
+            var cuenta = new Cuenta
+            {
+                NumeroCuenta = numeroCuenta,
+                TipoCuenta = dto.TipoCuenta,
+                SaldoActual = dto.SaldoInicial,
+                Estado = "Activa",
+                IdClientePropietario = dto.IdClientePropietario,
+                FechaApertura = DateTime.Now
+            };
+
+            var newCuenta = _cuentaService.Create(cuenta);
+
+            // Si hay saldo inicial, registrar movimiento
+            if (dto.SaldoInicial > 0)
+            {
+                var movimiento = new Movimiento
+                {
+                    IdCuenta = newCuenta.Id,
+                    TipoMovimiento = "Depósito",
+                    Monto = dto.SaldoInicial,
+                    FechaHora = DateTime.Now,
+                    Descripcion = "Depósito inicial al crear la cuenta"
+                };
+                _movimientoService.Create(movimiento);
+            }
+
+            return CreatedAtAction(nameof(GetById), new { id = newCuenta.Id }, newCuenta);
         }
 
-        // PUT: api/cuentas/5
+        // PUT: api/cuentas/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCuenta(int id, Cuenta cuenta)
+        public IActionResult Update(int id, [FromBody] Cuenta cuenta)
         {
-            if (id != cuenta.Id)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(cuenta).State = EntityState.Modified;
-
-            try
+            var cuentaExistente = _cuentaService.GetById(id);
+            if (cuentaExistente == null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CuentaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound($"No se encontró la cuenta con id: {id}");
             }
 
+            _cuentaService.Update(id, cuenta);
             return NoContent();
         }
 
-        // DELETE: api/cuentas/5
+        // DELETE: api/cuentas/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCuenta(int id)
+        public ActionResult Delete(int id)
         {
-            var cuenta = await _context.Cuentas.FindAsync(id);
+            var cuenta = _cuentaService.GetById(id);
             if (cuenta == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró la cuenta con id: {id}");
             }
 
-            if (cuenta.Saldo != 0)
-            {
-                return BadRequest("No se puede eliminar una cuenta con saldo diferente a cero");
-            }
-
-            _context.Cuentas.Remove(cuenta);
-            await _context.SaveChangesAsync();
-
+            _cuentaService.Delete(id);
             return NoContent();
         }
 
-        // POST: api/cuentas/5/deposito
-        [HttpPost("{id}/deposito")]
-        public async Task<ActionResult<object>> Depositar(int id, [FromBody] DepositoRequest request)
+        // POST: api/cuentas/deposito
+        [HttpPost("deposito")]
+        public ActionResult RealizarDeposito([FromBody] DepositoDto dto)
         {
-            var cuenta = await _context.Cuentas
-                .Include(c => c.Cliente)
-                .FirstOrDefaultAsync(c => c.Id == id);
-            
-            if (cuenta == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound(new { Error = "Cuenta no encontrada" });
+                return BadRequest(ModelState);
             }
 
-            if (cuenta.Estado != EstadoCuenta.Activa)
-            {
-                return BadRequest(new { Error = "La cuenta no está activa" });
-            }
-
-            if (request.Monto <= 0)
-            {
-                return BadRequest(new { Error = "El monto debe ser mayor a cero" });
-            }
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            
             try
             {
+                // Validar cuenta
+                var cuenta = _cuentaService.GetById(dto.IdCuenta);
+                if (cuenta == null)
+                {
+                    return NotFound($"No se encontró la cuenta con id: {dto.IdCuenta}");
+                }
+
+                if (cuenta.Estado != "Activa")
+                {
+                    return BadRequest("La cuenta no está activa");
+                }
+
                 // Actualizar saldo
-                cuenta.Saldo += request.Monto;
-                
-                // Crear movimiento
+                cuenta.SaldoActual += dto.Monto;
+                _cuentaService.ActualizarSaldo(cuenta.Id, cuenta.SaldoActual);
+
+                // Registrar movimiento
                 var movimiento = new Movimiento
                 {
-                    CuentaId = id,
-                    Tipo = TipoMovimiento.Deposito,
-                    Monto = request.Monto,
-                    FechaHora = DateTime.UtcNow,
-                    Descripcion = request.Descripcion ?? "Depósito"
+                    IdCuenta = cuenta.Id,
+                    TipoMovimiento = "Depósito",
+                    Monto = dto.Monto,
+                    FechaHora = DateTime.Now,
+                    Descripcion = dto.Descripcion ?? "Depósito realizado"
                 };
+                _movimientoService.Create(movimiento);
 
-                _context.Movimientos.Add(movimiento);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                
-                return Ok(new 
-                { 
-                    Exito = true,
-                    Mensaje = "Depósito realizado exitosamente",
-                    NuevoSaldo = cuenta.Saldo,
-                    MovimientoId = movimiento.Id,
-                    FechaOperacion = DateTime.UtcNow
+                return Ok(new
+                {
+                    message = "Depósito realizado exitosamente",
+                    nuevoSaldo = cuenta.SaldoActual,
+                    movimiento = movimiento
                 });
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                return StatusCode(500, new { Error = "Error interno del servidor", Detalle = ex.Message });
+                return BadRequest(new { message = $"Error al realizar el depósito: {ex.Message}" });
             }
         }
 
-        // POST: api/cuentas/5/retiro
-        [HttpPost("{id}/retiro")]
-        public async Task<ActionResult<object>> Retirar(int id, [FromBody] RetiroRequest request)
+        // POST: api/cuentas/retiro
+        [HttpPost("retiro")]
+        public ActionResult RealizarRetiro([FromBody] RetiroDto dto)
         {
-            var cuenta = await _context.Cuentas
-                .Include(c => c.Cliente)
-                .FirstOrDefaultAsync(c => c.Id == id);
-            
-            if (cuenta == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound(new { Error = "Cuenta no encontrada" });
+                return BadRequest(ModelState);
             }
 
-            if (cuenta.Estado != EstadoCuenta.Activa)
-            {
-                return BadRequest(new { Error = "La cuenta no está activa" });
-            }
-
-            if (request.Monto <= 0)
-            {
-                return BadRequest(new { Error = "El monto debe ser mayor a cero" });
-            }
-
-            if (cuenta.Saldo < request.Monto)
-            {
-                return BadRequest(new { 
-                    Error = "Saldo insuficiente", 
-                    SaldoDisponible = cuenta.Saldo,
-                    MontoSolicitado = request.Monto
-                });
-            }
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            
             try
             {
+                // Validar cuenta
+                var cuenta = _cuentaService.GetById(dto.IdCuenta);
+                if (cuenta == null)
+                {
+                    return NotFound($"No se encontró la cuenta con id: {dto.IdCuenta}");
+                }
+
+                if (cuenta.Estado != "Activa")
+                {
+                    return BadRequest("La cuenta no está activa");
+                }
+
+                // Validar saldo suficiente
+                if (cuenta.SaldoActual < dto.Monto)
+                {
+                    return BadRequest("Saldo insuficiente para realizar el retiro");
+                }
+
                 // Actualizar saldo
-                cuenta.Saldo -= request.Monto;
-                
-                // Crear movimiento
+                cuenta.SaldoActual -= dto.Monto;
+                _cuentaService.ActualizarSaldo(cuenta.Id, cuenta.SaldoActual);
+
+                // Registrar movimiento
                 var movimiento = new Movimiento
                 {
-                    CuentaId = id,
-                    Tipo = TipoMovimiento.Retiro,
-                    Monto = request.Monto,
-                    FechaHora = DateTime.UtcNow,
-                    Descripcion = request.Descripcion ?? "Retiro"
+                    IdCuenta = cuenta.Id,
+                    TipoMovimiento = "Retiro",
+                    Monto = dto.Monto,
+                    FechaHora = DateTime.Now,
+                    Descripcion = dto.Descripcion ?? "Retiro realizado"
                 };
+                _movimientoService.Create(movimiento);
 
-                _context.Movimientos.Add(movimiento);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                
-                return Ok(new 
-                { 
-                    Exito = true,
-                    Mensaje = "Retiro realizado exitosamente",
-                    NuevoSaldo = cuenta.Saldo,
-                    MovimientoId = movimiento.Id,
-                    FechaOperacion = DateTime.UtcNow
+                return Ok(new
+                {
+                    message = "Retiro realizado exitosamente",
+                    nuevoSaldo = cuenta.SaldoActual,
+                    movimiento = movimiento
                 });
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                return StatusCode(500, new { Error = "Error interno del servidor", Detalle = ex.Message });
+                return BadRequest(new { message = $"Error al realizar el retiro: {ex.Message}" });
             }
         }
 
-        private bool CuentaExists(int id)
+        // Método auxiliar para generar número de cuenta único
+        private string GenerarNumeroCuenta()
         {
-            return _context.Cuentas.Any(e => e.Id == id);
+            var random = new Random();
+            string numeroCuenta;
+            do
+            {
+                numeroCuenta = random.Next(10000000, 99999999).ToString();
+            } while (_cuentaService.GetByNumeroCuenta(numeroCuenta) != null);
+
+            return numeroCuenta;
         }
     }
 }
