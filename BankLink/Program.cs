@@ -1,4 +1,5 @@
-// using BankLink.interfaces; // Comentado temporalmente
+using BankLink.interfaces;
+using BankLink.Service;
 using BankLink.Context;
 using BankLink.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,13 +9,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configurar cadena de conexión y DbContext
+// 1. Añadir cadena de conexión y DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BankLinkDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Add services to the container
+// Add services to the container.
 builder.Services.AddControllers();
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -45,20 +48,37 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Configurar HttpClient para APIs externas
+// Configurar HttpClient para llamadas a APIs externas
 builder.Services.AddHttpClient();
 
-// Servicios comentados temporalmente porque están excluidos del proyecto
-// builder.Services.AddScoped<IClienteService, ClienteService>();
-// builder.Services.AddScoped<IMovimientoService, MovimientoService>();
-// builder.Services.AddScoped<IBancoExternoService, BancoExternoService>();
-// builder.Services.AddScoped<IAuthService, AuthService>();
-// builder.Services.AddScoped<ICuentaService, CuentaService>();
-// builder.Services.AddScoped<ITransferenciaService, TransferenciaService>();
+// Registrar servicios
+builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Elegir UNA estrategia por entorno:
+if (builder.Environment.IsDevelopment())
+{
+    // En desarrollo usamos archivos JSON
+    builder.Services.AddScoped<IClienteService, ClienteFileService>();
+    builder.Services.AddScoped<ICuentaService, CuentaFileService>();
+    builder.Services.AddScoped<IMovimientoService, MovimientoFileService>();
+    builder.Services.AddScoped<IBancoExternoService, BancoExternoFileService>();
+    // Para transferencias siempre usamos DbService por la complejidad de las transacciones
+    builder.Services.AddScoped<ITransferenciaService, TransferenciaDbService>();
+}
+else
+{
+    // En producción usamos Base de Datos
+    builder.Services.AddScoped<IClienteService, ClienteDbService>();
+    builder.Services.AddScoped<ICuentaService, CuentaDbService>();
+    builder.Services.AddScoped<IMovimientoService, MovimientoDbService>();
+    builder.Services.AddScoped<IBancoExternoService, BancoExternoDbService>();
+    builder.Services.AddScoped<ITransferenciaService, TransferenciaDbService>();
+}
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -66,8 +86,10 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
-app.UseAuthentication();
+
+app.UseAuthentication(); // ¡Debe ir ANTES de UseAuthorization!
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
