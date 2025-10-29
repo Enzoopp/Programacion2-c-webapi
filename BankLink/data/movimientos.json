@@ -1,0 +1,26 @@
+[
+  {
+    "Id": 1,
+    "IdCuenta": 1,
+    "TipoMovimiento": "Depósito",
+    "Monto": 50000.00,
+    "FechaHora": "2025-01-15T10:00:00",
+    "Descripcion": "Depósito inicial al crear la cuenta"
+  },
+  {
+    "Id": 2,
+    "IdCuenta": 2,
+    "TipoMovimiento": "Depósito",
+    "Monto": 120000.00,
+    "FechaHora": "2025-02-20T14:30:00",
+    "Descripcion": "Depósito inicial al crear la cuenta"
+  },
+  {
+    "Id": 3,
+    "IdCuenta": 3,
+    "TipoMovimiento": "Depósito",
+    "Monto": 75000.00,
+    "FechaHora": "2025-03-10T09:15:00",
+    "Descripcion": "Depósito inicial al crear la cuenta"
+  }
+]
