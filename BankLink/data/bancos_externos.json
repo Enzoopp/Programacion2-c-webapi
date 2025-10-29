@@ -1,0 +1,26 @@
+[
+  {
+    "Id": 1,
+    "NombreBanco": "Banco Galicia",
+    "CodigoIdentificacion": "GAL001",
+    "UrlApiBase": "https://api-galicia.com",
+    "Descripcion": "Banco Galicia - Transferencias interbancarias",
+    "Activo": true
+  },
+  {
+    "Id": 2,
+    "NombreBanco": "Banco Nación",
+    "CodigoIdentificacion": "NAC001",
+    "UrlApiBase": "https://api-nacion.com",
+    "Descripcion": "Banco de la Nación Argentina",
+    "Activo": true
+  },
+  {
+    "Id": 3,
+    "NombreBanco": "Banco Santander",
+    "CodigoIdentificacion": "SAN001",
+    "UrlApiBase": "https://api-santander.com",
+    "Descripcion": "Banco Santander Río",
+    "Activo": true
+  }
+]
