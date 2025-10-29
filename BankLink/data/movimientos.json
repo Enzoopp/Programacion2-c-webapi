@@ -2,25 +2,109 @@
   {
     "Id": 1,
     "IdCuenta": 1,
-    "TipoMovimiento": "Depósito",
+    "TipoMovimiento": "Dep\u00F3sito",
     "Monto": 50000.00,
     "FechaHora": "2025-01-15T10:00:00",
-    "Descripcion": "Depósito inicial al crear la cuenta"
+    "Descripcion": "Dep\u00F3sito inicial al crear la cuenta",
+    "Cuenta": null
   },
   {
     "Id": 2,
     "IdCuenta": 2,
-    "TipoMovimiento": "Depósito",
+    "TipoMovimiento": "Dep\u00F3sito",
     "Monto": 120000.00,
     "FechaHora": "2025-02-20T14:30:00",
-    "Descripcion": "Depósito inicial al crear la cuenta"
+    "Descripcion": "Dep\u00F3sito inicial al crear la cuenta",
+    "Cuenta": null
   },
   {
     "Id": 3,
     "IdCuenta": 3,
-    "TipoMovimiento": "Depósito",
+    "TipoMovimiento": "Dep\u00F3sito",
     "Monto": 75000.00,
     "FechaHora": "2025-03-10T09:15:00",
-    "Descripcion": "Depósito inicial al crear la cuenta"
+    "Descripcion": "Dep\u00F3sito inicial al crear la cuenta",
+    "Cuenta": null
+  },
+  {
+    "Id": 4,
+    "IdCuenta": 4,
+    "TipoMovimiento": "Dep\u00F3sito",
+    "Monto": 50000.00,
+    "FechaHora": "2025-10-29T14:58:00.4592007-03:00",
+    "Descripcion": "Dep\u00F3sito inicial al crear la cuenta",
+    "Cuenta": null
+  },
+  {
+    "Id": 5,
+    "IdCuenta": 1,
+    "TipoMovimiento": "Dep\u00F3sito",
+    "Monto": 10000.00,
+    "FechaHora": "2025-10-29T14:58:38.6122252-03:00",
+    "Descripcion": "Dep\u00F3sito de prueba",
+    "Cuenta": null
+  },
+  {
+    "Id": 6,
+    "IdCuenta": 5,
+    "TipoMovimiento": "Dep\u00F3sito",
+    "Monto": 30000.00,
+    "FechaHora": "2025-10-29T15:01:25.5894047-03:00",
+    "Descripcion": "Dep\u00F3sito inicial al crear la cuenta",
+    "Cuenta": null
+  },
+  {
+    "Id": 7,
+    "IdCuenta": 1,
+    "TipoMovimiento": "Transferencia Enviada",
+    "Monto": 5000.00,
+    "FechaHora": "2025-10-29T15:04:11.0355388-03:00",
+    "Descripcion": "Transferencia a cuenta 10001234. Transferencia entre mis cuentas",
+    "Cuenta": null
+  },
+  {
+    "Id": 8,
+    "IdCuenta": 1,
+    "TipoMovimiento": "Transferencia Recibida",
+    "Monto": 5000.00,
+    "FechaHora": "2025-10-29T15:04:11.0372232-03:00",
+    "Descripcion": "Transferencia desde cuenta 10001234. Transferencia entre mis cuentas",
+    "Cuenta": null
+  },
+  {
+    "Id": 9,
+    "IdCuenta": 1,
+    "TipoMovimiento": "Transferencia Enviada",
+    "Monto": 5000.00,
+    "FechaHora": "2025-10-29T15:04:30.9808416-03:00",
+    "Descripcion": "Transferencia a cuenta 10005678. Transferencia entre mis cuentas",
+    "Cuenta": null
+  },
+  {
+    "Id": 10,
+    "IdCuenta": 2,
+    "TipoMovimiento": "Transferencia Recibida",
+    "Monto": 5000.00,
+    "FechaHora": "2025-10-29T15:04:30.9817278-03:00",
+    "Descripcion": "Transferencia desde cuenta 10001234. Transferencia entre mis cuentas",
+    "Cuenta": null
+  },
+  {
+    "Id": 11,
+    "IdCuenta": 1,
+    "TipoMovimiento": "Transferencia Enviada",
+    "Monto": 5000.00,
+    "FechaHora": "2025-10-29T15:04:36.0752958-03:00",
+    "Descripcion": "Transferencia a cuenta 10005678. Transferencia entre mis cuentas",
+    "Cuenta": null
+  },
+  {
+    "Id": 12,
+    "IdCuenta": 2,
+    "TipoMovimiento": "Transferencia Recibida",
+    "Monto": 5000.00,
+    "FechaHora": "2025-10-29T15:04:36.0760982-03:00",
+    "Descripcion": "Transferencia desde cuenta 10001234. Transferencia entre mis cuentas",
+    "Cuenta": null
   }
 ]
