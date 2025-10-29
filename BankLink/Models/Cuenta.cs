@@ -7,42 +7,27 @@ namespace BankLink.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "El número de cuenta es requerido")]
-        [StringLength(20, ErrorMessage = "El número de cuenta no puede exceder 20 caracteres")]
         public string NumeroCuenta { get; set; }
 
         [Required(ErrorMessage = "El tipo de cuenta es requerido")]
-        public TipoCuenta Tipo { get; set; }
+        public string TipoCuenta { get; set; } // Ahorro, Corriente
 
-        [Required(ErrorMessage = "El saldo es requerido")]
-        [Range(0, double.MaxValue, ErrorMessage = "El saldo no puede ser negativo")]
-        public decimal Saldo { get; set; }
+        [Required(ErrorMessage = "El saldo actual es requerido")]
+        public decimal SaldoActual { get; set; }
 
         [Required(ErrorMessage = "El estado es requerido")]
-        public EstadoCuenta Estado { get; set; } = EstadoCuenta.Activa;
+        public string Estado { get; set; } // Activa, Inactiva
 
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime FechaApertura { get; set; } = DateTime.Now;
 
-        // Clave foránea hacia Cliente
-        [Required(ErrorMessage = "El cliente propietario es requerido")]
-        public int ClienteId { get; set; }
+        // FK hacia Cliente
+        [Required(ErrorMessage = "El ID del cliente propietario es requerido")]
+        public int IdClientePropietario { get; set; }
 
-        // Navegación hacia Cliente
-        public virtual Cliente Cliente { get; set; }
+        // Propiedad de navegación
+        public Cliente ClientePropietario { get; set; }
 
-        // Navegación: Una cuenta puede tener múltiples movimientos
-        public virtual ICollection<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
-    }
-
-    public enum TipoCuenta
-    {
-        Ahorro = 1,
-        Corriente = 2
-    }
-
-    public enum EstadoCuenta
-    {
-        Activa = 1,
-        Inactiva = 2,
-        Suspendida = 3
+        // Relación con Movimientos
+        public List<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
     }
 }
