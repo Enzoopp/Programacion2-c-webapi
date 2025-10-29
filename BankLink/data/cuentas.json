@@ -1,0 +1,29 @@
+[
+  {
+    "Id": 1,
+    "NumeroCuenta": "10001234",
+    "TipoCuenta": "Ahorro",
+    "SaldoActual": 50000.00,
+    "Estado": "Activa",
+    "FechaApertura": "2025-01-15T10:00:00",
+    "IdClientePropietario": 1
+  },
+  {
+    "Id": 2,
+    "NumeroCuenta": "10005678",
+    "TipoCuenta": "Corriente",
+    "SaldoActual": 120000.00,
+    "Estado": "Activa",
+    "FechaApertura": "2025-02-20T14:30:00",
+    "IdClientePropietario": 1
+  },
+  {
+    "Id": 3,
+    "NumeroCuenta": "10009876",
+    "TipoCuenta": "Ahorro",
+    "SaldoActual": 75000.00,
+    "Estado": "Activa",
+    "FechaApertura": "2025-03-10T09:15:00",
+    "IdClientePropietario": 2
+  }
+]
