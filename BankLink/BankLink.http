@@ -1,49 +1,270 @@
-@BankLink_HostAddress = http://localhost:5002
+@BankLink_HostAddress = http://localhost:5000
 
-### Test de Clientes
+### ========================================
+### AUTH - REGISTRO Y LOGIN
+### ========================================
 
-# Obtener todos los clientes
+### Registrar nuevo cliente
+POST {{BankLink_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Carlos",
+  "apellido": "Rodríguez",
+  "dni": "45678912",
+  "direccion": "Av. Corrientes 1500",
+  "telefono": "1123456789",
+  "email": "carlos.rodriguez@email.com",
+  "nombreUsuario": "carlosrodriguez",
+  "contraseña": "password123",
+  "rol": "Cliente"
+}
+
+### Login
+POST {{BankLink_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "nombreUsuario": "juanperez",
+  "contraseña": "password123"
+}
+
+### ========================================
+### CLIENTES
+### ========================================
+
+### Obtener todos los clientes
 GET {{BankLink_HostAddress}}/api/clientes
-Accept: application/json
 
-###
+### Obtener cliente por ID
+GET {{BankLink_HostAddress}}/api/clientes/1
 
-# Crear nuevo cliente
+### Obtener cliente por DNI
+GET {{BankLink_HostAddress}}/api/clientes/dni/12345678
+
+### Crear nuevo cliente
 POST {{BankLink_HostAddress}}/api/clientes
 Content-Type: application/json
 
 {
-  "nombre": "Juan",
-  "apellido": "Pérez",
-  "identificacion": "12345678",
-  "direccion": "Calle 123, Ciudad",
-  "telefono": "+54 11 1234-5678",
-  "email": "juan.perez@email.com"
+  "nombre": "Ana",
+  "apellido": "Martínez",
+  "dni": "23456789",
+  "direccion": "Calle San Martín 789",
+  "telefono": "1134567890",
+  "email": "ana.martinez@email.com",
+  "nombreUsuario": "anamartinez",
+  "passHash": "password123",
+  "rol": "Cliente"
 }
 
-###
-
-# Obtener cliente por ID
-GET {{BankLink_HostAddress}}/api/clientes/1
-Accept: application/json
-
-###
-
-# Actualizar cliente
+### Actualizar cliente
 PUT {{BankLink_HostAddress}}/api/clientes/1
 Content-Type: application/json
 
 {
-  "id": 1,
   "nombre": "Juan Carlos",
   "apellido": "Pérez",
-  "identificacion": "12345678",
-  "direccion": "Calle 456, Ciudad",
-  "telefono": "+54 11 1234-5678",
-  "email": "juan.perez@email.com"
+  "dni": "12345678",
+  "direccion": "Av. Libertador 5678",
+  "telefono": "1145678901",
+  "email": "juan.perez@email.com",
+  "nombreUsuario": "juanperez",
+  "passHash": "$2a$11$XPZxM5C9zRVN8.K0nYqpG.xF4N8k0HzQJ8iL8nZ8K3kxM8K3nZ8K3",
+  "rol": "Cliente"
 }
 
-###
-
-# Eliminar cliente
+### Eliminar cliente
 DELETE {{BankLink_HostAddress}}/api/clientes/1
+
+### ========================================
+### CUENTAS
+### ========================================
+
+### Obtener todas las cuentas
+GET {{BankLink_HostAddress}}/api/cuentas
+
+### Obtener cuenta por ID
+GET {{BankLink_HostAddress}}/api/cuentas/1
+
+### Obtener cuenta por número
+GET {{BankLink_HostAddress}}/api/cuentas/numero/10001234
+
+### Obtener cuentas de un cliente
+GET {{BankLink_HostAddress}}/api/cuentas/cliente/1
+
+### Crear nueva cuenta
+POST {{BankLink_HostAddress}}/api/cuentas
+Content-Type: application/json
+
+{
+  "tipoCuenta": "Ahorro",
+  "idClientePropietario": 1,
+  "saldoInicial": 10000.00
+}
+
+### Actualizar cuenta
+PUT {{BankLink_HostAddress}}/api/cuentas/1
+Content-Type: application/json
+
+{
+  "numeroCuenta": "10001234",
+  "tipoCuenta": "Ahorro",
+  "saldoActual": 55000.00,
+  "estado": "Activa",
+  "idClientePropietario": 1
+}
+
+### Eliminar cuenta
+DELETE {{BankLink_HostAddress}}/api/cuentas/1
+
+### ========================================
+### DEPÓSITOS Y RETIROS
+### ========================================
+
+### Realizar depósito
+POST {{BankLink_HostAddress}}/api/cuentas/deposito
+Content-Type: application/json
+
+{
+  "idCuenta": 1,
+  "monto": 5000.00,
+  "descripcion": "Depósito por transferencia externa"
+}
+
+### Realizar retiro
+POST {{BankLink_HostAddress}}/api/cuentas/retiro
+Content-Type: application/json
+
+{
+  "idCuenta": 1,
+  "monto": 2000.00,
+  "descripcion": "Retiro en cajero automático"
+}
+
+### ========================================
+### MOVIMIENTOS
+### ========================================
+
+### Obtener todos los movimientos
+GET {{BankLink_HostAddress}}/api/movimientos
+
+### Obtener movimiento por ID
+GET {{BankLink_HostAddress}}/api/movimientos/1
+
+### Obtener movimientos de una cuenta
+GET {{BankLink_HostAddress}}/api/movimientos/cuenta/1
+
+### Eliminar movimiento
+DELETE {{BankLink_HostAddress}}/api/movimientos/1
+
+### ========================================
+### BANCOS EXTERNOS
+### ========================================
+
+### Obtener todos los bancos externos
+GET {{BankLink_HostAddress}}/api/bancosexternos
+
+### Obtener banco externo por ID
+GET {{BankLink_HostAddress}}/api/bancosexternos/1
+
+### Obtener banco externo por código
+GET {{BankLink_HostAddress}}/api/bancosexternos/codigo/GAL001
+
+### Crear nuevo banco externo
+POST {{BankLink_HostAddress}}/api/bancosexternos
+Content-Type: application/json
+
+{
+  "nombreBanco": "Banco BBVA",
+  "codigoIdentificacion": "BBV001",
+  "urlApiBase": "https://api-bbva.com",
+  "descripcion": "Banco BBVA Argentina",
+  "activo": true
+}
+
+### Actualizar banco externo
+PUT {{BankLink_HostAddress}}/api/bancosexternos/1
+Content-Type: application/json
+
+{
+  "nombreBanco": "Banco Galicia",
+  "codigoIdentificacion": "GAL001",
+  "urlApiBase": "https://api-galicia.com",
+  "descripcion": "Banco Galicia - Transferencias actualizadas",
+  "activo": true
+}
+
+### Eliminar banco externo
+DELETE {{BankLink_HostAddress}}/api/bancosexternos/1
+
+### ========================================
+### TRANSFERENCIAS
+### ========================================
+
+### Obtener todas las transferencias
+GET {{BankLink_HostAddress}}/api/transferencias
+
+### Obtener transferencia por ID
+GET {{BankLink_HostAddress}}/api/transferencias/1
+
+### Obtener transferencias de una cuenta
+GET {{BankLink_HostAddress}}/api/transferencias/cuenta/1
+
+### Realizar transferencia interna (entre cuentas de BankLink)
+POST {{BankLink_HostAddress}}/api/transferencias/interna
+Content-Type: application/json
+
+{
+  "idCuentaOrigen": 1,
+  "numeroCuentaDestino": "10009876",
+  "monto": 5000.00,
+  "descripcion": "Pago de servicios"
+}
+
+### Realizar transferencia externa (a otro banco)
+POST {{BankLink_HostAddress}}/api/transferencias/externa
+Content-Type: application/json
+
+{
+  "idCuentaOrigen": 1,
+  "numeroCuentaDestino": "20001234",
+  "idBancoDestino": 1,
+  "monto": 3000.00,
+  "descripcion": "Transferencia a Banco Galicia"
+}
+
+### Recibir transferencia externa (desde otro banco)
+POST {{BankLink_HostAddress}}/api/transferencias/recibir
+Content-Type: application/json
+
+{
+  "numeroCuentaDestino": "10001234",
+  "monto": 8000.00,
+  "bancoOrigen": "Banco Galicia",
+  "numeroCuentaOrigen": "20005678",
+  "descripcion": "Pago de cliente externo"
+}
+
+### Realizar transferencia automática (detecta si es interna o externa)
+POST {{BankLink_HostAddress}}/api/transferencias/automatica
+Content-Type: application/json
+
+{
+  "idCuentaOrigen": 2,
+  "numeroCuentaDestino": "10001234",
+  "monto": 10000.00,
+  "descripcion": "Transferencia automática"
+}
+
+### Realizar transferencia automática externa
+POST {{BankLink_HostAddress}}/api/transferencias/automatica
+Content-Type: application/json
+
+{
+  "idCuentaOrigen": 2,
+  "numeroCuentaDestino": "30001234",
+  "idBancoDestino": 2,
+  "monto": 7000.00,
+  "descripcion": "Transferencia automática a Banco Nación"
+}
