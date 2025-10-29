@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BankLink.Models;
-using BankLink.Context;
-using Microsoft.EntityFrameworkCore;
+using BankLink.Dtos;
+using BankLink.interfaces;
 
 namespace BankLink.Controllers
 {
@@ -9,134 +9,167 @@ namespace BankLink.Controllers
     [Route("api/[controller]")]
     public class TransferenciasController : ControllerBase
     {
-        private readonly BankLinkDbContext _context;
+        private readonly ITransferenciaService _transferenciaService;
+        private readonly ICuentaService _cuentaService;
 
-        public TransferenciasController(BankLinkDbContext context)
+        public TransferenciasController(
+            ITransferenciaService transferenciaService,
+            ICuentaService cuentaService)
         {
-            _context = context;
+            _transferenciaService = transferenciaService;
+            _cuentaService = cuentaService;
         }
 
         // GET: api/transferencias
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Transferencia>>> GetTransferencias()
+        public ActionResult<List<Transferencia>> GetAll()
         {
-            return await _context.Transferencias
-                .Include(t => t.CuentaOrigen)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.CuentaDestino)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.BancoExterno)
-                .Include(t => t.Movimientos)
-                .OrderByDescending(t => t.FechaHora)
-                .ToListAsync();
+            return Ok(_transferenciaService.GetAll());
         }
 
-        // GET: api/transferencias/5
+        // GET: api/transferencias/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Transferencia>> GetTransferencia(int id)
+        public ActionResult<Transferencia> GetById(int id)
         {
-            var transferencia = await _context.Transferencias
-                .Include(t => t.CuentaOrigen)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.CuentaDestino)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.BancoExterno)
-                .Include(t => t.Movimientos)
-                .FirstOrDefaultAsync(t => t.Id == id);
-
-            if (transferencia == null)
+            var transferencia = _transferenciaService.GetById(id);
+            if (transferencia != null)
             {
-                return NotFound();
+                return Ok(transferencia);
             }
-
-            return transferencia;
+            else
+            {
+                return NotFound($"No se encontró la transferencia con id: {id}");
+            }
         }
 
-        // GET: api/transferencias/cuenta-origen/5
-        [HttpGet("cuenta-origen/{cuentaId}")]
-        public async Task<ActionResult<IEnumerable<Transferencia>>> GetTransferenciasByCuentaOrigen(int cuentaId)
+        // GET: api/transferencias/cuenta/{cuentaId}
+        [HttpGet("cuenta/{cuentaId}")]
+        public ActionResult<List<Transferencia>> GetByCuentaOrigenId(int cuentaId)
         {
-            return await _context.Transferencias
-                .Include(t => t.CuentaOrigen)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.CuentaDestino)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.BancoExterno)
-                .Where(t => t.CuentaOrigenId == cuentaId)
-                .OrderByDescending(t => t.FechaHora)
-                .ToListAsync();
-        }
-
-        // GET: api/transferencias/cuenta-destino/5
-        [HttpGet("cuenta-destino/{cuentaId}")]
-        public async Task<ActionResult<IEnumerable<Transferencia>>> GetTransferenciasByCuentaDestino(int cuentaId)
-        {
-            return await _context.Transferencias
-                .Include(t => t.CuentaOrigen)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.CuentaDestino)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.BancoExterno)
-                .Where(t => t.CuentaDestinoId == cuentaId)
-                .OrderByDescending(t => t.FechaHora)
-                .ToListAsync();
+            var transferencias = _transferenciaService.GetByCuentaOrigenId(cuentaId);
+            return Ok(transferencias);
         }
 
         // POST: api/transferencias/interna
         [HttpPost("interna")]
-        public async Task<ActionResult<object>> CreateTransferenciaInterna([FromBody] object transferencia)
+        public async Task<ActionResult> RealizarTransferenciaInterna([FromBody] TransferenciaDto dto)
         {
-            // Esta será implementada cuando tengamos los servicios
-            return BadRequest("Funcionalidad no implementada aún. Requiere servicios activos.");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var transferencia = await _transferenciaService.RealizarTransferenciaInternaAsync(dto);
+                
+                return Ok(new
+                {
+                    message = "Transferencia interna realizada exitosamente",
+                    transferencia = transferencia
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al realizar la transferencia: {ex.Message}" });
+            }
         }
 
         // POST: api/transferencias/externa
         [HttpPost("externa")]
-        public async Task<ActionResult<object>> CreateTransferenciaExterna([FromBody] object transferencia)
+        public async Task<ActionResult> RealizarTransferenciaExterna([FromBody] TransferenciaDto dto)
         {
-            // Esta será implementada cuando tengamos los servicios
-            return BadRequest("Funcionalidad no implementada aún. Requiere servicios activos.");
-        }
-
-        // PUT: api/transferencias/5/cancelar
-        [HttpPut("{id}/cancelar")]
-        public async Task<IActionResult> CancelarTransferencia(int id)
-        {
-            var transferencia = await _context.Transferencias.FindAsync(id);
-            if (transferencia == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
-            if (transferencia.Estado != EstadoTransferencia.Pendiente)
+            try
             {
-                return BadRequest("Solo se pueden cancelar transferencias pendientes");
+                var transferencia = await _transferenciaService.RealizarTransferenciaExternaAsync(dto);
+                
+                return Ok(new
+                {
+                    message = "Transferencia externa realizada exitosamente",
+                    transferencia = transferencia
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al realizar la transferencia: {ex.Message}" });
+            }
+        }
+
+        // POST: api/transferencias/recibir
+        [HttpPost("recibir")]
+        public async Task<ActionResult> RecibirTransferenciaExterna([FromBody] TransferenciaRecibidaDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
-            transferencia.Estado = EstadoTransferencia.Cancelada;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            try
+            {
+                var transferencia = await _transferenciaService.RecibirTransferenciaExternaAsync(dto);
+                
+                return Ok(new
+                {
+                    message = "Transferencia externa recibida exitosamente",
+                    transferencia = transferencia
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al recibir la transferencia: {ex.Message}" });
+            }
         }
 
-        // GET: api/transferencias/estado/{estado}
-        [HttpGet("estado/{estado}")]
-        public async Task<ActionResult<IEnumerable<Transferencia>>> GetTransferenciasByEstado(EstadoTransferencia estado)
+        // POST: api/transferencias/automatica
+        [HttpPost("automatica")]
+        public async Task<ActionResult> RealizarTransferenciaAutomatica([FromBody] TransferenciaDto dto)
         {
-            return await _context.Transferencias
-                .Include(t => t.CuentaOrigen)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.CuentaDestino)
-                    .ThenInclude(c => c.Cliente)
-                .Include(t => t.BancoExterno)
-                .Where(t => t.Estado == estado)
-                .OrderByDescending(t => t.FechaHora)
-                .ToListAsync();
-        }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        private bool TransferenciaExists(int id)
-        {
-            return _context.Transferencias.Any(e => e.Id == id);
+            try
+            {
+                // Determinar si es interna o externa
+                var cuentaDestino = _cuentaService.GetByNumeroCuenta(dto.NumeroCuentaDestino);
+                
+                Transferencia transferencia;
+                string tipoTransferencia;
+
+                if (cuentaDestino != null)
+                {
+                    // Es una transferencia interna
+                    transferencia = await _transferenciaService.RealizarTransferenciaInternaAsync(dto);
+                    tipoTransferencia = "interna";
+                }
+                else if (dto.IdBancoDestino.HasValue)
+                {
+                    // Es una transferencia externa
+                    transferencia = await _transferenciaService.RealizarTransferenciaExternaAsync(dto);
+                    tipoTransferencia = "externa";
+                }
+                else
+                {
+                    return BadRequest(new { message = "La cuenta destino no existe y no se especificó un banco externo" });
+                }
+
+                return Ok(new
+                {
+                    message = $"Transferencia {tipoTransferencia} realizada exitosamente",
+                    tipo = tipoTransferencia,
+                    transferencia = transferencia
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al realizar la transferencia: {ex.Message}" });
+            }
         }
     }
 }
