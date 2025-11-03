@@ -15,7 +15,12 @@ builder.Services.AddDbContext<BankLinkDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Evitar referencias circulares en la serialización JSON
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -55,26 +60,13 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// Elegir UNA estrategia por entorno:
-if (builder.Environment.IsDevelopment())
-{
-    // En desarrollo usamos archivos JSON
-    builder.Services.AddScoped<IClienteService, ClienteFileService>();
-    builder.Services.AddScoped<ICuentaService, CuentaFileService>();
-    builder.Services.AddScoped<IMovimientoService, MovimientoFileService>();
-    builder.Services.AddScoped<IBancoExternoService, BancoExternoFileService>();
-    // Para transferencias siempre usamos DbService por la complejidad de las transacciones
-    builder.Services.AddScoped<ITransferenciaService, TransferenciaDbService>();
-}
-else
-{
-    // En producción usamos Base de Datos
-    builder.Services.AddScoped<IClienteService, ClienteDbService>();
-    builder.Services.AddScoped<ICuentaService, CuentaDbService>();
-    builder.Services.AddScoped<IMovimientoService, MovimientoDbService>();
-    builder.Services.AddScoped<IBancoExternoService, BancoExternoDbService>();
-    builder.Services.AddScoped<ITransferenciaService, TransferenciaDbService>();
-}
+// 🗄️ USAR SIEMPRE BASE DE DATOS (SQL Server)
+// Todos los datos se persisten en BankLinkDb
+builder.Services.AddScoped<IClienteService, ClienteDbService>();
+builder.Services.AddScoped<ICuentaService, CuentaDbService>();
+builder.Services.AddScoped<IMovimientoService, MovimientoDbService>();
+builder.Services.AddScoped<IBancoExternoService, BancoExternoDbService>();
+builder.Services.AddScoped<ITransferenciaService, TransferenciaDbService>();
 
 var app = builder.Build();
 
