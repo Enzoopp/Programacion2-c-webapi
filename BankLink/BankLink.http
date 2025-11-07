@@ -1,65 +1,91 @@
+### ============================================================================
+### BANKLINK API - COLECCIÓN DE PRUEBAS COMPLETAS
+### ============================================================================
+### Instrucciones:
+### 1. Ajusta el puerto en @BankLink_HostAddress según tu configuración
+### 2. Ejecuta primero "Registrar nuevo cliente" y "Login"
+### 3. Copia el token JWT de la respuesta de Login
+### 4. Pégalo en la variable @token (línea siguiente)
+### 5. Todos los endpoints protegidos usarán automáticamente ese token
+### ============================================================================
+
 @BankLink_HostAddress = http://localhost:5000
+@token = tu_token_jwt_aqui
 
-### ========================================
-### AUTH - REGISTRO Y LOGIN
-### ========================================
+### ============================================================================
+### 🔐 AUTENTICACIÓN - REGISTRO Y LOGIN
+### ============================================================================
 
-### Registrar nuevo cliente
+### 1️⃣ Registrar nuevo cliente (Cliente 1)
 POST {{BankLink_HostAddress}}/api/auth/register
 Content-Type: application/json
 
 {
-  "nombre": "Carlos",
-  "apellido": "Rodríguez",
-  "dni": "45678912",
-  "direccion": "Av. Corrientes 1500",
-  "telefono": "1123456789",
-  "email": "carlos.rodriguez@email.com",
-  "nombreUsuario": "carlosrodriguez",
-  "contraseña": "password123",
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "dni": "12345678",
+  "direccion": "Av. Libertador 123",
+  "telefono": "1145678901",
+  "email": "juan.perez@email.com",
+  "nombreUsuario": "juanperez",
+  "password": "Password123",
   "rol": "Cliente"
 }
 
-### Login
+### 2️⃣ Registrar segundo cliente (para pruebas de transferencias)
+POST {{BankLink_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "María",
+  "apellido": "González",
+  "dni": "87654321",
+  "direccion": "Av. Corrientes 456",
+  "telefono": "1123456789",
+  "email": "maria.gonzalez@email.com",
+  "nombreUsuario": "mariagonzalez",
+  "password": "Password456",
+  "rol": "Cliente"
+}
+
+### 3️⃣ Login con Cliente 1
+# ⚠️ IMPORTANTE: Copia el "token" de la respuesta y pégalo en la variable @token arriba
 POST {{BankLink_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
   "nombreUsuario": "juanperez",
-  "contraseña": "password123"
+  "password": "Password123"
 }
 
-### ========================================
-### CLIENTES
-### ========================================
-
-### Obtener todos los clientes
-GET {{BankLink_HostAddress}}/api/clientes
-
-### Obtener cliente por ID
-GET {{BankLink_HostAddress}}/api/clientes/1
-
-### Obtener cliente por DNI
-GET {{BankLink_HostAddress}}/api/clientes/dni/12345678
-
-### Crear nuevo cliente
-POST {{BankLink_HostAddress}}/api/clientes
+### 4️⃣ Login con Cliente 2
+POST {{BankLink_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
-  "nombre": "Ana",
-  "apellido": "Martínez",
-  "dni": "23456789",
-  "direccion": "Calle San Martín 789",
-  "telefono": "1134567890",
-  "email": "ana.martinez@email.com",
-  "nombreUsuario": "anamartinez",
-  "passHash": "password123",
-  "rol": "Cliente"
+  "nombreUsuario": "mariagonzalez",
+  "password": "Password456"
 }
 
-### Actualizar cliente
+### ============================================================================
+### 👥 CLIENTES (CRUD)
+### ============================================================================
+
+### 5️⃣ Obtener todos los clientes
+GET {{BankLink_HostAddress}}/api/clientes
+Authorization: Bearer {{token}}
+
+### 6️⃣ Obtener cliente por ID
+GET {{BankLink_HostAddress}}/api/clientes/1
+Authorization: Bearer {{token}}
+
+### 7️⃣ Obtener cliente por DNI
+GET {{BankLink_HostAddress}}/api/clientes/dni/12345678
+Authorization: Bearer {{token}}
+
+### 8️⃣ Actualizar cliente
 PUT {{BankLink_HostAddress}}/api/clientes/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -74,197 +100,327 @@ Content-Type: application/json
   "rol": "Cliente"
 }
 
-### Eliminar cliente
-DELETE {{BankLink_HostAddress}}/api/clientes/1
+### ============================================================================
+### 💳 CUENTAS (CRUD + Depósitos/Retiros)
+### ============================================================================
 
-### ========================================
-### CUENTAS
-### ========================================
-
-### Obtener todas las cuentas
-GET {{BankLink_HostAddress}}/api/cuentas
-
-### Obtener cuenta por ID
-GET {{BankLink_HostAddress}}/api/cuentas/1
-
-### Obtener cuenta por número
-GET {{BankLink_HostAddress}}/api/cuentas/numero/10001234
-
-### Obtener cuentas de un cliente
-GET {{BankLink_HostAddress}}/api/cuentas/cliente/1
-
-### Crear nueva cuenta
+### 9️⃣ Crear cuenta para Cliente 1 (Ahorro)
 POST {{BankLink_HostAddress}}/api/cuentas
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "tipoCuenta": "Ahorro",
   "idClientePropietario": 1,
-  "saldoInicial": 10000.00
+  "saldoInicial": 50000.00
 }
 
-### Actualizar cuenta
-PUT {{BankLink_HostAddress}}/api/cuentas/1
+### 🔟 Crear segunda cuenta para Cliente 1 (Corriente)
+POST {{BankLink_HostAddress}}/api/cuentas
+Authorization: Bearer {{token}}
+
 Content-Type: application/json
 
 {
-  "numeroCuenta": "10001234",
+  "tipoCuenta": "Corriente",
+  "idClientePropietario": 1,
+  "saldoInicial": 20000.00
+}
+
+### 1️⃣1️⃣ Crear cuenta para Cliente 2
+POST {{BankLink_HostAddress}}/api/cuentas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
   "tipoCuenta": "Ahorro",
-  "saldoActual": 55000.00,
+  "idClientePropietario": 2,
+  "saldoInicial": 30000.00
+}
+
+### 1️⃣2️⃣ Obtener todas las cuentas
+GET {{BankLink_HostAddress}}/api/cuentas
+Authorization: Bearer {{token}}
+
+### 1️⃣3️⃣ Obtener cuenta por ID
+GET {{BankLink_HostAddress}}/api/cuentas/1
+Authorization: Bearer {{token}}
+
+### 1️⃣4️⃣ Obtener cuenta por número (reemplaza con número generado)
+GET {{BankLink_HostAddress}}/api/cuentas/numero/12345678
+Authorization: Bearer {{token}}
+
+### 1️⃣5️⃣ Obtener cuentas de un cliente
+GET {{BankLink_HostAddress}}/api/cuentas/cliente/1
+Authorization: Bearer {{token}}
+
+### 1️⃣6️⃣ Actualizar cuenta
+PUT {{BankLink_HostAddress}}/api/cuentas/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "numeroCuenta": "12345678",
+  "tipoCuenta": "Ahorro",
+  "saldoActual": 50000.00,
   "estado": "Activa",
   "idClientePropietario": 1
 }
 
-### Eliminar cuenta
-DELETE {{BankLink_HostAddress}}/api/cuentas/1
+### ============================================================================
+### 💰 DEPÓSITOS Y RETIROS
+### ============================================================================
 
-### ========================================
-### DEPÓSITOS Y RETIROS
-### ========================================
-
-### Realizar depósito
+### 1️⃣7️⃣ Realizar depósito en cuenta 1
 POST {{BankLink_HostAddress}}/api/cuentas/deposito
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "idCuenta": 1,
+  "monto": 10000.00,
+  "descripcion": "Depósito en efectivo - Sucursal Centro"
+}
+
+### 1️⃣8️⃣ Realizar otro depósito
+POST {{BankLink_HostAddress}}/api/cuentas/deposito
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "idCuenta": 1,
   "monto": 5000.00,
-  "descripcion": "Depósito por transferencia externa"
+  "descripcion": "Depósito por cheque"
 }
 
-### Realizar retiro
+### 1️⃣9️⃣ Realizar retiro
 POST {{BankLink_HostAddress}}/api/cuentas/retiro
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "idCuenta": 1,
-  "monto": 2000.00,
+  "monto": 8000.00,
   "descripcion": "Retiro en cajero automático"
 }
 
-### ========================================
-### MOVIMIENTOS
-### ========================================
+### 2️⃣0️⃣ ❌ Intento de retiro con saldo insuficiente (debería fallar)
+POST {{BankLink_HostAddress}}/api/cuentas/retiro
+Authorization: Bearer {{token}}
+Content-Type: application/json
 
-### Obtener todos los movimientos
+{
+  "idCuenta": 1,
+  "monto": 999999.00,
+  "descripcion": "Retiro que debería fallar por saldo insuficiente"
+}
+
+### ============================================================================
+### 📊 MOVIMIENTOS (Consulta de historial)
+### ============================================================================
+
+### 2️⃣1️⃣ Obtener todos los movimientos
 GET {{BankLink_HostAddress}}/api/movimientos
+Authorization: Bearer {{token}}
 
-### Obtener movimiento por ID
+### 2️⃣2️⃣ Obtener movimiento por ID
 GET {{BankLink_HostAddress}}/api/movimientos/1
+Authorization: Bearer {{token}}
 
-### Obtener movimientos de una cuenta
+### 2️⃣3️⃣ Obtener movimientos de una cuenta (extracto bancario)
 GET {{BankLink_HostAddress}}/api/movimientos/cuenta/1
+Authorization: Bearer {{token}}
 
-### Eliminar movimiento
-DELETE {{BankLink_HostAddress}}/api/movimientos/1
+### ============================================================================
+### 🏛️ BANCOS EXTERNOS
+### ============================================================================
 
-### ========================================
-### BANCOS EXTERNOS
-### ========================================
-
-### Obtener todos los bancos externos
-GET {{BankLink_HostAddress}}/api/bancosexternos
-
-### Obtener banco externo por ID
-GET {{BankLink_HostAddress}}/api/bancosexternos/1
-
-### Obtener banco externo por código
-GET {{BankLink_HostAddress}}/api/bancosexternos/codigo/GAL001
-
-### Crear nuevo banco externo
+### 2️⃣4️⃣ Registrar Banco Externo (compañero 1)
 POST {{BankLink_HostAddress}}/api/bancosexternos
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "nombreBanco": "Banco BBVA",
-  "codigoIdentificacion": "BBV001",
-  "urlApiBase": "https://api-bbva.com",
-  "descripcion": "Banco BBVA Argentina",
+  "nombreBanco": "BancoCompañero",
+  "codigoIdentificacion": "BCO001",
+  "urlApiBase": "http://localhost:5002",
+  "descripcion": "API del banco del compañero para integraciones",
   "activo": true
 }
 
-### Actualizar banco externo
+### 2️⃣5️⃣ Registrar otro Banco Externo
+POST {{BankLink_HostAddress}}/api/bancosexternos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombreBanco": "Banco Nación",
+  "codigoIdentificacion": "BNA001",
+  "urlApiBase": "http://localhost:5003",
+  "descripcion": "Banco de la Nación Argentina",
+  "activo": true
+}
+
+### 2️⃣6️⃣ Obtener todos los bancos externos
+GET {{BankLink_HostAddress}}/api/bancosexternos
+Authorization: Bearer {{token}}
+
+### 2️⃣7️⃣ Obtener banco externo por ID
+GET {{BankLink_HostAddress}}/api/bancosexternos/1
+Authorization: Bearer {{token}}
+
+### 2️⃣8️⃣ Obtener banco externo por código
+GET {{BankLink_HostAddress}}/api/bancosexternos/codigo/BCO001
+Authorization: Bearer {{token}}
+
+### 2️⃣9️⃣ Actualizar banco externo
 PUT {{BankLink_HostAddress}}/api/bancosexternos/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "nombreBanco": "Banco Galicia",
-  "codigoIdentificacion": "GAL001",
-  "urlApiBase": "https://api-galicia.com",
-  "descripcion": "Banco Galicia - Transferencias actualizadas",
+  "nombreBanco": "BancoCompañero Actualizado",
+  "codigoIdentificacion": "BCO001",
+  "urlApiBase": "http://localhost:5002",
+  "descripcion": "Banco del compañero - URL actualizada",
   "activo": true
 }
 
-### Eliminar banco externo
-DELETE {{BankLink_HostAddress}}/api/bancosexternos/1
+### ============================================================================
+### 🔄 TRANSFERENCIAS (¡LO MÁS IMPORTANTE DEL TP!)
+### ============================================================================
 
-### ========================================
-### TRANSFERENCIAS
-### ========================================
-
-### Obtener todas las transferencias
+### 3️⃣0️⃣ Obtener todas las transferencias
 GET {{BankLink_HostAddress}}/api/transferencias
+Authorization: Bearer {{token}}
 
-### Obtener transferencia por ID
-GET {{BankLink_HostAddress}}/api/transferencias/1
-
-### Obtener transferencias de una cuenta
-GET {{BankLink_HostAddress}}/api/transferencias/cuenta/1
-
-### Realizar transferencia interna (entre cuentas de BankLink)
+### 3️⃣1️⃣ Transferencia INTERNA entre Cuenta 1 → Cuenta 3
+# ⚠️ Reemplaza el numeroCuentaDestino con el número real de la cuenta 3
 POST {{BankLink_HostAddress}}/api/transferencias/interna
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "idCuentaOrigen": 1,
-  "numeroCuentaDestino": "10009876",
-  "monto": 5000.00,
-  "descripcion": "Pago de servicios"
+  "numeroCuentaDestino": "98765432",
+  "monto": 15000.00,
+  "descripcion": "Transferencia interna - Pago de servicios"
 }
 
-### Realizar transferencia externa (a otro banco)
+### 3️⃣2️⃣ ⭐ Transferencia EXTERNA hacia BancoCompañero
+# ⚠️ Requiere que el banco externo esté registrado y su API esté corriendo
 POST {{BankLink_HostAddress}}/api/transferencias/externa
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "idCuentaOrigen": 1,
-  "numeroCuentaDestino": "20001234",
+  "numeroCuentaDestino": "11223344",
   "idBancoDestino": 1,
-  "monto": 3000.00,
-  "descripcion": "Transferencia a Banco Galicia"
+  "monto": 7000.00,
+  "descripcion": "Transferencia externa - Pago a proveedor"
 }
 
-### Recibir transferencia externa (desde otro banco)
+### 3️⃣3️⃣ 🌐 RECIBIR Transferencia EXTERNA (desde otro banco)
+# ⚠️ Este endpoint es PÚBLICO (sin autenticación)
+# Los bancos externos lo llaman para enviarnos dinero
 POST {{BankLink_HostAddress}}/api/transferencias/recibir
 Content-Type: application/json
 
 {
-  "numeroCuentaDestino": "10001234",
-  "monto": 8000.00,
-  "bancoOrigen": "Banco Galicia",
-  "numeroCuentaOrigen": "20005678",
-  "descripcion": "Pago de cliente externo"
+  "numeroCuentaDestino": "12345678",
+  "monto": 12000.00,
+  "bancoOrigen": "BancoCompañero",
+  "numeroCuentaOrigen": "99887766",
+  "descripcion": "Transferencia recibida desde banco externo - Pago de cliente"
 }
 
-### Realizar transferencia automática (detecta si es interna o externa)
+### 3️⃣4️⃣ Transferencia AUTOMÁTICA (detecta interna vs externa)
 POST {{BankLink_HostAddress}}/api/transferencias/automatica
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "idCuentaOrigen": 2,
-  "numeroCuentaDestino": "10001234",
-  "monto": 10000.00,
-  "descripcion": "Transferencia automática"
+  "numeroCuentaDestino": "12345678",
+  "monto": 5000.00,
+  "descripcion": "Transferencia automática interna"
 }
 
-### Realizar transferencia automática externa
+### 3️⃣5️⃣ Transferencia AUTOMÁTICA externa
 POST {{BankLink_HostAddress}}/api/transferencias/automatica
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "idCuentaOrigen": 2,
-  "numeroCuentaDestino": "30001234",
+  "numeroCuentaDestino": "33445566",
   "idBancoDestino": 2,
-  "monto": 7000.00,
-  "descripcion": "Transferencia automática a Banco Nación"
+  "monto": 3000.00,
+  "descripcion": "Transferencia automática externa - Banco Nación"
 }
+
+### 3️⃣6️⃣ Obtener transferencias de una cuenta específica
+GET {{BankLink_HostAddress}}/api/transferencias/cuenta/1
+Authorization: Bearer {{token}}
+
+### ============================================================================
+### 🧪 PRUEBAS DE VALIDACIONES Y ERRORES
+### ============================================================================
+
+### 3️⃣7️⃣ ❌ Intento de transferencia sin saldo suficiente
+POST {{BankLink_HostAddress}}/api/transferencias/interna
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "idCuentaOrigen": 1,
+  "numeroCuentaDestino": "98765432",
+  "monto": 9999999.00,
+  "descripcion": "Debería fallar por saldo insuficiente"
+}
+
+### 3️⃣8️⃣ ❌ Intento de acceso sin token JWT
+GET {{BankLink_HostAddress}}/api/cuentas
+
+### 3️⃣9️⃣ ❌ Intento de obtener cuenta inexistente
+GET {{BankLink_HostAddress}}/api/cuentas/9999
+Authorization: Bearer {{token}}
+
+### 4️⃣0️⃣ ❌ Intento de depósito en cuenta inexistente
+POST {{BankLink_HostAddress}}/api/cuentas/deposito
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "idCuenta": 9999,
+  "monto": 1000.00,
+  "descripcion": "Debería fallar - cuenta no existe"
+}
+
+### ============================================================================
+### 📝 NOTAS FINALES
+### ============================================================================
+# 
+# ✅ CHECKLIST PARA LA PRESENTACIÓN:
+# 
+# 1. ✅ Autenticación JWT funcionando
+# 2. ✅ CRUD completo de Clientes, Cuentas, Movimientos
+# 3. ✅ Depósitos y retiros con validaciones
+# 4. ✅ Transferencias internas con consistencia transaccional
+# 5. ✅ Transferencias externas (enviar y recibir)
+# 6. ✅ Manejo de bancos externos
+# 7. ✅ Códigos HTTP apropiados (200, 201, 400, 404, 500)
+# 8. ✅ Validaciones de saldo, cuenta activa, etc.
+# 
+# 🎯 DEMOSTRACIÓN SUGERIDA:
+# 1. Mostrar Swagger (documentación automática)
+# 2. Registrar cliente y hacer login
+# 3. Crear cuentas con saldo inicial
+# 4. Hacer depósito y retiro
+# 5. Transferencia interna (mostrar que ambas cuentas se actualizan)
+# 6. Transferencia externa (si tienes compañero con API corriendo)
+# 7. Consultar movimientos (extracto bancario)
+# 8. Mostrar código del TransferenciaDbService (BEGIN TRANSACTION)
+# 
+### ============================================================================
