@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using BankLink.Models;
 using BankLink.Dtos;
 using BankLink.interfaces;
@@ -7,6 +8,7 @@ namespace BankLink.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]  // 🔒 Por defecto todos requieren autenticación
     public class TransferenciasController : ControllerBase
     {
         private readonly ITransferenciaService _transferenciaService;
@@ -102,6 +104,7 @@ namespace BankLink.Controllers
 
         // POST: api/transferencias/recibir
         [HttpPost("recibir")]
+        [AllowAnonymous]  // 🌐 PÚBLICO: Bancos externos pueden llamar este endpoint
         public async Task<ActionResult> RecibirTransferenciaExterna([FromBody] TransferenciaRecibidaDto dto)
         {
             if (!ModelState.IsValid)
