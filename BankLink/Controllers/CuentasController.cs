@@ -16,6 +16,7 @@
 // ============================================================================
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using BankLink.Models;
 using BankLink.Dtos;
 using BankLink.interfaces;
@@ -27,6 +28,7 @@ namespace BankLink.Controllers
     /// </summary>
     [ApiController]  // Habilita validación automática de ModelState
     [Route("api/[controller]")]  // Ruta base: /api/Cuentas
+    [Authorize]  // 🔒 REQUIERE AUTENTICACIÓN JWT para todos los endpoints
     public class CuentasController : ControllerBase
     {
         // ====================================================================
