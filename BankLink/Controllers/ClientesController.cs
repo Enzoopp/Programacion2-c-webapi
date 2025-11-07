@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using BankLink.Models;
 using BankLink.interfaces;
 
@@ -6,6 +7,7 @@ namespace BankLink.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]  // 🔒 REQUIERE AUTENTICACIÓN JWT
     public class ClientesController : ControllerBase
     {
         private readonly IClienteService _clienteService;
